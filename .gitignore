@@ -1,0 +1,43 @@
+# Build
+
+**/build/*
+!**/build/.gitkeep
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Sublime Text
+
+*.sublime-workspace
+
+# vs code
+
+.vscode
+
+# Mac
+
+**/.DS_Store
+
+# Odin
+ols.json

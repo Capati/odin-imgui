@@ -1,5 +1,4 @@
 # Build
-
 **/build/*
 !**/build/.gitkeep
 
@@ -28,15 +27,12 @@
 *.pdb
 
 # Sublime Text
-
 *.sublime-workspace
 
 # vs code
-
 .vscode
 
 # Mac
-
 **/.DS_Store
 
 # Odin

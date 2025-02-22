@@ -2,6 +2,17 @@
 
 [Odin Language][] bindings for **Dear ImGui v1.91.8-docking**.
 
+## Table of Contents
+
+- [Features](#features)
+- [Building](#building)
+  - [Prerequisites](#prerequisites)
+  - [Windows](#windows)
+  - [Unix](#unix)
+- [TODO](#todo)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
+
 ## Features
 
 - Uses [dear_bindings][] to generate the C API.

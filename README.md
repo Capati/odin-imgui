@@ -21,8 +21,8 @@
 - Names are in Odin naming convention
 - Contains bindings for most of the backends
   - All backends which exist in vendor have bindings
-  - These include: `vulkan`, `sdl2`, `sdl3`,`sdlgpu3`, `opengl3`, `sdlrenderer2`, `glfw`,
-    `dx11`, `dx12`, `win32`, `osx`, `metal`, `wgpu`
+  - These include: `dx11`, `dx12`, `glfw`, `metal`, `opengl3`, `osx`, `sdl2`, `sdl3`,
+    `sdlgpu3`, `sdlrenderer2`, `sdlrenderer3`, `vulkan`, `wgpu`, `win32`
 
 ## Building
 

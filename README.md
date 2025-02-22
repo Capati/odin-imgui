@@ -65,8 +65,8 @@ Building is entirely automated using `build.bat` on Windows and `build.sh` on Un
 
 ## TODO
 
-- [] Internal
-- [] Examples for reference
+- [ ] Internal
+- [ ] Examples for reference
 
 ## Acknowledgements
 

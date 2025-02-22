@@ -352,7 +352,7 @@ main() {
     setup_python_environment || exit 1
     process_imgui_headers || exit 1
     build_imgui || exit 1
-    echo "All operations completed successfully."
+    echo "ImGui compiled successfully."
 }
 
 main "$@"

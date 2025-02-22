@@ -18,7 +18,7 @@ call :process_imgui_headers || goto fail
 rem Build ImGui library
 call :build_imgui || goto fail
 
-echo All operations completed successfully.
+echo ImGui compiled successfully.
 goto end
 
 :check_prerequisites

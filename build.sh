@@ -169,6 +169,11 @@ clone_core_repositories() {
             backend_dir="$(eval echo \$${backend_upper}_DIR)"
             backend_version="$(eval echo \$${backend_upper}_VERSION)"
 
+			# Ignore this backend if backend_dir is empty (no need to clone)
+            if [ -z "${backend_dir}" ]; then
+                continue
+            fi
+
             # Clone the repository
             clone_repo "${backend_upper}" "${backend_dir}" "${backend_url}" "${backend_version}" || return 1
         fi

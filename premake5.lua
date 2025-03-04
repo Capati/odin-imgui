@@ -182,6 +182,8 @@ local function defineBackends()
     SDLGPU3_VERSION = SDL3_VERSION
 
     BACKENDS_LIST = {
+        "dx9",
+        "dx10",
         "dx11",
         "dx12",
         "glfw",
@@ -302,6 +304,53 @@ local function processImGuiHeaders()
     print("Bindings generated successfully.")
 end
 
+-- Generate impl_enabled.odin after build
+local function generateImplEnabledOdin()
+    -- Open the file for writing
+    local file = io.open("impl_enabled.odin", "w")
+    if not file then
+        error("Failed to open impl_enabled.odin for writing.")
+    end
+
+    -- Write the header
+    file:write("package imgui\n\n")
+    file:write("// This is a generated helper file that indicates which implementations\n")
+    file:write("// have been compiled into the bindings.\n\n")
+
+    -- Define all possible backends with their Odin constant names
+    local backendFlags = {
+        glfw          = "BACKEND_GLFW_ENABLED",
+        opengl3       = "BACKEND_OPENGL3_ENABLED",
+        sdl2          = "BACKEND_SDL2_ENABLED",
+        sdl3          = "BACKEND_SDL3_ENABLED",
+        sdlgpu3       = "BACKEND_SDLGPU3_ENABLED",
+        sdlrenderer2  = "BACKEND_SDLRENDERER2_ENABLED",
+        sdlrenderer3  = "BACKEND_SDLRENDERER3_ENABLED",
+        vulkan        = "BACKEND_VULKAN_ENABLED",
+        wgpu          = "BACKEND_WGPU_ENABLED",
+        osx           = "BACKEND_OSX_ENABLED",
+        metal         = "BACKEND_METAL_ENABLED",
+        dx11          = "BACKEND_DX11_ENABLED",
+        dx12          = "BACKEND_DX12_ENABLED",
+        win32         = "BACKEND_WIN32_ENABLED",
+        allegro5      = "BACKEND_ALLEGRO5_ENABLED",
+        android       = "BACKEND_ANDROID_ENABLED",
+        dx9           = "BACKEND_DX9_ENABLED",
+        dx10          = "BACKEND_DX10_ENABLED",
+        glut          = "BACKEND_GLUT_ENABLED",
+        opengl2       = "BACKEND_OPENGL2_ENABLED"
+    }
+
+    -- Write each backend flag, set to true if in ENABLED_BACKENDS
+    for backend, flag in pairs(backendFlags) do
+        local enabled = table.contains(ENABLED_BACKENDS, backend) and "true" or "false"
+        file:write(string.format("%s :: %s\n", flag, enabled))
+    end
+
+    file:close()
+    print("Generated impl_enabled.odin successfully.")
+end
+
 workspace "ImGui"
 	if _OPTIONS["instructions"] then
 		showHelpInstructions()
@@ -346,6 +395,7 @@ workspace "ImGui"
 	downloadDependencies()
 	setupPythonEnvironment()
 	processImGuiHeaders()
+	generateImplEnabledOdin()
 
 project "ImGui"
 	kind "StaticLib"
@@ -439,6 +489,8 @@ project "ImGui"
 
 	-- List of backends that only need source files
 	local backends_with_sources = {
+		"dx9",
+		"dx10",
 		"dx11",
 		"dx12",
 		"opengl3",

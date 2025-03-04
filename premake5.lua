@@ -18,6 +18,73 @@ newoption {
     description = "Show help instructions"
 }
 
+-- Define default versions
+local defaultVersions = {
+    imgui = "v1.91.8-docking",
+    dearBindings = "f6e8ea7",
+    glfw = "3.4",
+    vulkan = "v1.4.307",
+    wgpu = "aef5e42",
+    sdl2 = "release-2.28.3",
+    sdl3 = "release-3.2.4"
+}
+
+-- Define options for each backend
+newoption {
+    trigger = "imgui-version",
+    value = "VERSION",
+    description = "Set ImGui library version",
+    default = defaultVersions.imgui
+}
+
+newoption {
+    trigger = "dear-bindings-version",
+    value = "VERSION",
+    description = "Set Dear Bindings library version",
+    default = defaultVersions.dearBindings
+}
+
+newoption {
+    trigger = "glfw-version",
+    value = "VERSION",
+    description = "Set GLFW library version",
+    default = defaultVersions.glfw
+}
+
+newoption {
+    trigger = "vulkan-version",
+    value = "VERSION",
+    description = "Set Vulkan-headers version",
+    default = defaultVersions.vulkan
+}
+
+newoption {
+    trigger = "wgpu-version",
+    value = "VERSION",
+    description = "Set WebGPU-headers version",
+    default = defaultVersions.wgpu
+}
+
+newoption {
+    trigger = "sdl2-version",
+    value = "VERSION",
+    description = "Set SDL2 library version",
+    default = defaultVersions.sdl2
+}
+
+newoption {
+    trigger = "sdl3-version",
+    value = "VERSION",
+    description = "Set SDL3 library version",
+    default = defaultVersions.sdl3
+}
+
+-- Function to get the version, using command-line option or default
+local function getVersion(optionName, defaultVersion)
+    local version = _OPTIONS[optionName]
+    return version or defaultVersion
+end
+
 -- Display usage instructions
 local function showHelpInstructions()
     print(
@@ -60,13 +127,13 @@ end
 
 -- Define backend versions and repository info
 local function defineBackends()
-    IMGUI_VERSION = "v1.91.8-docking"
-    DEAR_BINDINGS_VERSION = "f6e8ea7"
-    GLFW_VERSION = "3.4"
-    VULKAN_VERSION = "v1.4.307"
-    WGPU_VERSION = "aef5e42"
-    SDL2_VERSION = "release-2.28.3"
-    SDL3_VERSION = "release-3.2.4"
+	IMGUI_VERSION = getVersion("imgui-version", defaultVersions.imgui)
+    DEAR_BINDINGS_VERSION = getVersion("dear-bindings-version", defaultVersions.dearBindings)
+    GLFW_VERSION = getVersion("glfw-version", defaultVersions.glfw)
+    VULKAN_VERSION = getVersion("vulkan-version", defaultVersions.vulkan)
+    WGPU_VERSION = getVersion("wgpu-version", defaultVersions.wgpu)
+    SDL2_VERSION = getVersion("sdl2-version", defaultVersions.sdl2)
+    SDL3_VERSION = getVersion("sdl3-version", defaultVersions.sdl3)
 
     REPOS = {
         glfw = {

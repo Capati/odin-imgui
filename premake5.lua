@@ -105,7 +105,7 @@ end
 
 local redirectNul = os.target() == "windows" and ">nul 2>&1" or ">/dev/null 2>&1"
 
--- Check if curl or wget is available
+-- Check if a command is available
 local function hasCommand(cmd)
 	return os.execute(cmd .. " " .. redirectNul)
 end

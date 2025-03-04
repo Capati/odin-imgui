@@ -103,7 +103,12 @@ Example:
     os.exit(0, true)
 end
 
-local redirect_nul = os.target() == "windows" and ">nul 2>&1" or ">/dev/null 2>&1"
+local redirectNul = os.target() == "windows" and ">nul 2>&1" or ">/dev/null 2>&1"
+
+-- Check if curl or wget is available
+local function hasCommand(cmd)
+	return os.execute(cmd .. " " .. redirectNul)
+end
 
 -- Set up directory structure
 local function setupDirectories()
@@ -146,7 +151,7 @@ local function defineBackends()
             dir = path.translate(DEPS_DIR .. "/vulkan_headers"),
             url = "https://github.com/KhronosGroup/Vulkan-Headers.git",
             version = VULKAN_VERSION,
-            name = "Vulkan"
+            name = "Vulkan-Headers"
         },
         sdl2 = {
             dir = path.translate(DEPS_DIR .. "/sdl2"),
@@ -164,9 +169,12 @@ local function defineBackends()
             dir = path.translate(DEPS_DIR .. "/webgpu"),
             url = "https://github.com/webgpu-native/webgpu-headers.git",
             version = WGPU_VERSION,
-            name = "WGPU"
+            name = "WebGPU-Headers"
         }
     }
+
+    REPOS.sdlrenderer2 = REPOS.sdl2
+    REPOS.sdlrenderer3 = REPOS.sdl3
 
     -- Set aliases for SDL-based backends
     SDLRENDERER2_VERSION = SDL2_VERSION
@@ -205,11 +213,11 @@ local function defineBackends()
 end
 
 -- Clone or update repositories
-local function cloneRepositories()
+local function downloadDependencies()
     -- Check for Git availability silently
-	if not os.execute("python3 --version " .. redirect_nul) then
-		error("Python 3 is not installed. Please install it and try again.")
-	end
+    if not hasCommand("git --version ") then
+        error("Git is not installed. Please install it and try again.")
+    end
 
     -- Clone ImGui and Dear_Bindings
     IMGUI_DIR = path.translate(DEPS_DIR .. "/imgui")
@@ -223,7 +231,7 @@ local function cloneRepositories()
             if not os.execute("git clone " .. repoUrl .. " " .. repoDir) then
                 error("Failed to clone " .. repoName .. " repository.")
             end
-            if not os.execute("cd " .. repoDir .. " && git checkout " .. repoVersion .. redirect_nul) then
+            if not os.execute("cd " .. repoDir .. " && git checkout " .. repoVersion .. redirectNul) then
                 error("Failed to checkout " .. repoVersion .. " for " .. repoName .. ".")
             end
         end
@@ -244,12 +252,12 @@ end
 
 -- Set up Python virtual environment
 local function setupPythonEnvironment()
-    VENV_DIR = path.translate(BUILD_DIR .. "/venv")
-
     -- Check for Python 3 availability silently
-	if not os.execute("python3 --version" .. redirect_nul) then
+	if not hasCommand("python3 --version") then
         error("Python 3 is not installed. Please install it and try again.")
     end
+
+    VENV_DIR = path.translate(BUILD_DIR .. "/venv")
 
     -- Create virtual environment if it doesn’t exist
     if not os.isdir(VENV_DIR) then
@@ -335,7 +343,7 @@ workspace "ImGui"
 
 	setupDirectories()
 	defineBackends()
-	cloneRepositories()
+	downloadDependencies()
 	setupPythonEnvironment()
 	processImGuiHeaders()
 
@@ -386,7 +394,7 @@ project "ImGui"
 
 	if isBackendEnabled("sdl2") or isBackendEnabled("sdlrenderer2") then
 		includedirs {
-			path.translate(REPOS.sdl2.dir .. "/include")
+			path.translate(REPOS.sdlrenderer2.dir .. "/include")
 		}
 		files {
 			path.translate(IMGUI_DIR .. "/backends/imgui_impl_sdl2.cpp"),
@@ -396,7 +404,7 @@ project "ImGui"
 
 	if isBackendEnabled("sdl3") or isBackendEnabled("sdlgpu3") or isBackendEnabled("sdlrenderer3") then
 		includedirs {
-			path.translate(REPOS.sdl3.dir .. "/include")
+			path.translate(REPOS.sdlrenderer3.dir .. "/include")
 		}
 		files {
 			path.translate(IMGUI_DIR .. "/backends/imgui_impl_sdl3.cpp"),

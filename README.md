@@ -8,7 +8,7 @@
 - [Building](#building)
   - [Prerequisites](#prerequisites)
   - [Windows](#windows)
-  - [Unix](#unix)
+  - [Unix (macOS/Linux)](#unix-macoslinux)
 - [TODO](#todo)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -26,53 +26,88 @@
 
 ## Building
 
-Building is entirely automated using `build.bat` on Windows and `build.sh` on Unix systems
-(Linux/Mac).
+Building ImGui requires utilizing a tool called **premake** found at
+<https://premake.github.io>. Although the process involves several steps, they are relatively
+straightforward.
 
 ### Prerequisites
 
-- [Git](http://git-scm.com/downloads) - must be in the path
+- [Premake5](https://premake.github.io) - the build configuration
+  - You can download the [Pre-Built Binaries](https://premake.github.io/download), simply need
+    to be unpacked and placed somewhere on the system search path or any other convenient
+    location.
+  - For Unix, also requires **GNU libc 2.38**.
+- [Git](http://git-scm.com/downloads) - required for clone backend dependencies
 - [Python](https://www.python.org/downloads/) - version 3.3.x is required by [dear_bindings][]
   and `venv` (Python Virtual Environment)
-- C++ compiler - `MSVC` on Windows or `g++/clang` on Unix
+- C++ compiler - `vs2022` on Windows or `g++/clang` on Unix
 
 ### Windows
 
-1. Open a Command Prompt and navigate to the project directory
+1. Clone or [download](https://github.com/Capati/odin-imgui/archive/refs/heads/main.zip) this
+   repository
 
-2. Run the `.\build.bat` script with **wanted backends** in arguments:
+2. Download and install **premake5.exe**.
 
-    ```batch
-    build.bat glfw vulkan
-    ```
+    Either add to PATH or copy to project directory.
 
-3. To create a debug build, provide a `debug` argument:
-
-    ```batch
-    build.bat glfw vulkan debug
-    ```
-
-### Unix
-
-1. Open a Terminal and navigate to the project directory
-
-2. Make the script `build.sh` executable (if needed):
+3. Open a command window, navigate to the project directory and generate Visual Studio 2022
+   project files with desired backends:
 
     ```shell
-    chmod +x ./build.sh
+    premake5 --backends=glfw,opengl3 vs2022
     ```
 
-3. Run the `./build.sh` script with **wanted backends** in arguments:
+4. From the project folder, open the directory `build\make\windows`, them open the generated
+   solution **ImGui.sln**.
 
-    ```shell
-    ./build.sh glfw vulkan
+5. In Visual Studio, confirm that the dropdown box at the top says “x64” (not “x86”); and then
+   use **Build** > **Build Solution**.
+
+    The generated library file `imgui_windows_x64.lib` will be located in the root of the
+    project directory.
+
+### Unix (macOS/Linux)
+
+1. Clone or [download](https://github.com/Capati/odin-imgui/archive/refs/heads/main.zip) this
+   repository
+
+2. Download and install **premake5**
+
+3. Open a terminal window, navigate to the project directory and generate the makefiles with
+   desired backends:
+
+    ```bash
+    premake5 --backends=glfw,opengl3 gmake2
+    # On macOS, you can also use Xcode:
+    premake5 --backends=glfw,opengl3 xcode4
     ```
 
-4. To create a debug build, provide a `debug` argument:
+4. From the project folder, navigate to the generated build directory:
 
-    ```shell
-    build.sh glfw vulkan debug
+    ```bash
+    cd build/make/linux
+    # Or
+    cd build/make/macosx
     ```
+
+5. Compile the project using the `make` command:
+
+    ```bash
+    make config=release_x86_64
+    # Or for debug build:
+    # make config=debug_x86_64
+    ```
+
+    On macOS, the `make` command might need different configuration flags:
+
+    ```bash
+    make config=release_x86_64   # For Intel Macs
+    # or
+    make config=release_arm64    # For Apple Silicon (M1/M2/M3) Macs
+    ```
+
+    The generated library file will be located in the root of the project directory.
 
 ## TODO
 

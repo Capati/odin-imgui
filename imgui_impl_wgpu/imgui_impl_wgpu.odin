@@ -11,15 +11,15 @@ when ODIN_OS == .Windows {
 	}
 } else when ODIN_OS == .Linux {
 	when ODIN_ARCH == .amd64 {
-		foreign import lib "../imgui_linux_x64.a"
+		foreign import lib "../libimgui_linux_x64.a"
 	} else {
-		foreign import lib "../imgui_linux_arm64.a"
+		foreign import lib "../libimgui_linux_arm64.a"
 	}
 } else when ODIN_OS == .Darwin {
 	when ODIN_ARCH == .amd64 {
-		foreign import lib "../imgui_darwin_x64.a"
+		foreign import lib "../libimgui_macosx_x64.a"
 	} else {
-		foreign import lib "../imgui_darwin_arm64.a"
+		foreign import lib "../libimgui_macosx_arm64.a"
 	}
 }
 

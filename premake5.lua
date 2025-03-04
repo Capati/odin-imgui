@@ -401,9 +401,8 @@ project "ImGui"
 	kind "StaticLib"
 	language "C++"
 	targetdir "./"
-
-	-- Set the base target name
 	targetname ("imgui_" .. target_os .. "_" .. target_arch)
+	cppdialect "C++11"
 
 	includedirs {
 		IMGUI_DIR,
@@ -521,5 +520,10 @@ project "ImGui"
 	filter "system:windows"
 		systemversion "latest"
 
-	filter "system:linux"
-		pic "On"
+	filter { "system:linux or system:macosx" }
+        buildoptions {
+			"-fPIC",
+			"-fno-exceptions",
+			"-fno-rtti",
+			"-fno-threadsafe-statics",
+		}

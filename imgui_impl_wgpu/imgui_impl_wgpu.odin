@@ -34,6 +34,7 @@ Init_Info :: struct {
 }
 
 INIT_INFO_DEFAULT :: Init_Info {
+	num_frames_in_flight = 3,
 	render_target_format = .Undefined,
 	depth_stencil_format = .Undefined,
 	pipeline_multisample_state = {count = 1, mask = max(u32), alphaToCoverageEnabled = false},

@@ -34,6 +34,7 @@ Draw_Data :: im.Draw_Data
 // - About dynamic rendering:
 //   - When using dynamic rendering, set UseDynamicRendering=true and fill PipelineRenderingCreateInfo structure.
 Init_Info :: struct {
+	api_version:                    u32,
 	instance:                       vk.Instance,
 	physical_device:                vk.PhysicalDevice,
 	device:                         vk.Device,
@@ -82,5 +83,5 @@ foreign lib {
 	// Optional: load Vulkan functions with a custom function loader
 	// This is only useful with IMGUI_IMPL_VULKAN_NO_PROTOTYPES / VK_NO_PROTOTYPES
 	@(link_name = "ImGui_ImplVulkan_LoadFunctions")
-	load_functions :: proc(loader_func: proc "c" (function_name: cstring, user_data: rawptr) -> vk.ProcVoidFunction, user_data: rawptr = nil) -> bool ---
+	load_functions :: proc(api_version: u32, loader_func: proc "c" (function_name: cstring, user_data: rawptr) -> vk.ProcVoidFunction, user_data: rawptr = nil) -> bool ---
 }

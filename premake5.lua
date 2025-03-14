@@ -20,11 +20,11 @@ newoption {
 
 -- Define default versions
 local defaultVersions = {
-    imgui = "v1.91.8-docking",
+    imgui = "v1.91.9-docking",
     dearBindings = "f6e8ea7",
     glfw = "3.4",
     vulkan = "v1.4.307",
-    wgpu = "aef5e42",
+    wgpu = "97636ad",
     sdl2 = "release-2.28.3",
     sdl3 = "release-3.2.4"
 }

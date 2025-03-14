@@ -41,7 +41,7 @@ foreign lib {
 	shutdown :: proc() ---
 	@(link_name = "ImGui_ImplSDLGPU3_NewFrame")
 	new_frame :: proc() ---
-	@(link_name = "ImGui_ImplSDLGPU3_PrepareDrawData")
+	@(link_name = "Imgui_ImplSDLGPU3_PrepareDrawData")
 	prepare_draw_data :: proc(draw_data: ^im.Draw_Data, command_buffer: ^sdl3.GPUCommandBuffer) ---
 	@(link_name = "ImGui_ImplSDLGPU3_RenderDrawData")
 	render_draw_data :: proc(draw_data: ^im.Draw_Data, command_buffer: ^sdl3.GPUCommandBuffer, render_pass: ^sdl3.GPURenderPass, pipeline: ^sdl3.GPUGraphicsPipeline = nil) ---

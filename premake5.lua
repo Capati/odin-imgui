@@ -107,7 +107,7 @@ local redirectNul = os.target() == "windows" and ">nul 2>&1" or ">/dev/null 2>&1
 
 -- Check if a command is available
 local function hasCommand(cmd)
-	return os.execute(cmd .. " " .. redirectNul)
+    return os.execute(cmd .. " " .. redirectNul)
 end
 
 -- Set up directory structure
@@ -123,16 +123,16 @@ local function setupDirectories()
     if not os.isdir(DEPS_DIR) then
         os.mkdir(DEPS_DIR)
     end
-	-- Clean generated files
+    -- Clean generated files
     if os.isdir(GENERATED_DIR) then
-        os.rmdir(GENERATED_DIR)
+        -- os.rmdir(GENERATED_DIR)
     end
     os.mkdir(GENERATED_DIR)
 end
 
 -- Define backend versions and repository info
 local function defineBackends()
-	IMGUI_VERSION = getVersion("imgui-version", defaultVersions.imgui)
+    IMGUI_VERSION = getVersion("imgui-version", defaultVersions.imgui)
     DEAR_BINDINGS_VERSION = getVersion("dear-bindings-version", defaultVersions.dearBindings)
     GLFW_VERSION = getVersion("glfw-version", defaultVersions.glfw)
     VULKAN_VERSION = getVersion("vulkan-version", defaultVersions.vulkan)
@@ -255,7 +255,7 @@ end
 -- Set up Python virtual environment
 local function setupPythonEnvironment()
     -- Check for Python 3 availability silently
-	if not hasCommand("python3 --version") then
+    if not hasCommand("python3 --version") then
         error("Python 3 is not installed. Please install it and try again.")
     end
 
@@ -319,26 +319,26 @@ local function generateImplEnabledOdin()
 
     -- Define all possible backends with their Odin constant names
     local backendFlags = {
-        glfw          = "BACKEND_GLFW_ENABLED",
-        opengl3       = "BACKEND_OPENGL3_ENABLED",
-        sdl2          = "BACKEND_SDL2_ENABLED",
-        sdl3          = "BACKEND_SDL3_ENABLED",
-        sdlgpu3       = "BACKEND_SDLGPU3_ENABLED",
-        sdlrenderer2  = "BACKEND_SDLRENDERER2_ENABLED",
-        sdlrenderer3  = "BACKEND_SDLRENDERER3_ENABLED",
-        vulkan        = "BACKEND_VULKAN_ENABLED",
-        wgpu          = "BACKEND_WGPU_ENABLED",
-        osx           = "BACKEND_OSX_ENABLED",
-        metal         = "BACKEND_METAL_ENABLED",
-        dx11          = "BACKEND_DX11_ENABLED",
-        dx12          = "BACKEND_DX12_ENABLED",
-        win32         = "BACKEND_WIN32_ENABLED",
-        allegro5      = "BACKEND_ALLEGRO5_ENABLED",
-        android       = "BACKEND_ANDROID_ENABLED",
-        dx9           = "BACKEND_DX9_ENABLED",
-        dx10          = "BACKEND_DX10_ENABLED",
-        glut          = "BACKEND_GLUT_ENABLED",
-        opengl2       = "BACKEND_OPENGL2_ENABLED"
+        glfw         = "BACKEND_GLFW_ENABLED",
+        opengl3      = "BACKEND_OPENGL3_ENABLED",
+        sdl2         = "BACKEND_SDL2_ENABLED",
+        sdl3         = "BACKEND_SDL3_ENABLED",
+        sdlgpu3      = "BACKEND_SDLGPU3_ENABLED",
+        sdlrenderer2 = "BACKEND_SDLRENDERER2_ENABLED",
+        sdlrenderer3 = "BACKEND_SDLRENDERER3_ENABLED",
+        vulkan       = "BACKEND_VULKAN_ENABLED",
+        wgpu         = "BACKEND_WGPU_ENABLED",
+        osx          = "BACKEND_OSX_ENABLED",
+        metal        = "BACKEND_METAL_ENABLED",
+        dx11         = "BACKEND_DX11_ENABLED",
+        dx12         = "BACKEND_DX12_ENABLED",
+        win32        = "BACKEND_WIN32_ENABLED",
+        allegro5     = "BACKEND_ALLEGRO5_ENABLED",
+        android      = "BACKEND_ANDROID_ENABLED",
+        dx9          = "BACKEND_DX9_ENABLED",
+        dx10         = "BACKEND_DX10_ENABLED",
+        glut         = "BACKEND_GLUT_ENABLED",
+        opengl2      = "BACKEND_OPENGL2_ENABLED"
     }
 
     -- Write each backend flag, set to true if in ENABLED_BACKENDS
@@ -349,6 +349,139 @@ local function generateImplEnabledOdin()
 
     file:close()
     print("Generated impl_enabled.odin successfully.")
+end
+
+local function generateBuildFile()
+    local file = io.open(path.join(BUILD_DIR, "build.bat"), "w")
+    if not file then
+        error("Failed to create build.bat file.")
+    end
+
+    file:write("@echo off\n")
+    file:write("setlocal enabledelayedexpansion\n\n")
+
+    file:write(":: Setup tooling\n")
+    file:write("call vcvars64.bat || exit /b 1\n\n")
+
+    -- Configuration
+    file:write(":: Configuration\n")
+    file:write("set BUILD_DIR=.\\\n")
+    file:write("set DEPS_DIR=", ".\\deps", "\n")
+    file:write("set GENERATED_DIR=", ".\\generated", "\n")
+    file:write("set IMGUI_DIR=", ".\\deps\\imgui", "\n\n")
+
+    -- Define compilation variables based on backends
+    file:write(":: Configure include paths based on enabled backends\n")
+    file:write(
+        "set INCLUDE_DIRS=/I\"!IMGUI_DIR!\" /I\"!GENERATED_DIR!\" /I\"!IMGUI_DIR!\\backends\"\n")
+
+    -- Add backend-specific include directories
+    if isBackendEnabled("glfw") then
+        local glfw_dir = string.match(REPOS.glfw.dir, "[^/\\]+$")
+        file:write("set INCLUDE_DIRS=!INCLUDE_DIRS! /I\"!DEPS_DIR!\\", glfw_dir, "\\include\"\n")
+    end
+    if isBackendEnabled("sdl2") or isBackendEnabled("sdlrenderer2") then
+        local sdl2_dir = string.match(REPOS.sdl2.dir, "[^/\\]+$")
+        file:write("set INCLUDE_DIRS=!INCLUDE_DIRS! /I\"!DEPS_DIR!\\", sdl2_dir, "\\include\"\n")
+    end
+    if isBackendEnabled("sdl3") or isBackendEnabled("sdlgpu3") or isBackendEnabled("sdlrenderer3") then
+        local sdl3_dir = string.match(REPOS.sdl3.dir, "[^/\\]+$")
+        file:write("set INCLUDE_DIRS=!INCLUDE_DIRS! /I\"!DEPS_DIR!\\", sdl3_dir, "\\include\"\n")
+    end
+    if isBackendEnabled("vulkan") then
+        local vulkan_dir = string.match(REPOS.vulkan.dir, "[^/\\]+$")
+        file:write("set INCLUDE_DIRS=!INCLUDE_DIRS! /I\"!DEPS_DIR!\\", vulkan_dir, "\\include\"\n")
+    end
+    if isBackendEnabled("wgpu") then
+        local wgpu_dir = string.match(REPOS.wgpu.dir, "[^/\\]+$")
+        file:write("set INCLUDE_DIRS=!INCLUDE_DIRS! /I\"!DEPS_DIR!", "\"\n")
+    end
+
+    -- Define source files
+    file:write("\n:: Source files\n")
+    file:write("set SOURCES=!IMGUI_DIR!\\*.cpp\n")
+    file:write("set SOURCES=!SOURCES! \"!GENERATED_DIR!\\*.cpp\"\n")
+
+    -- Add backend-specific source files
+    local backendSources = {
+        glfw = "imgui_impl_glfw.cpp",
+        sdl2 = "imgui_impl_sdl2.cpp",
+        sdlrenderer2 = "imgui_impl_sdlrenderer2.cpp",
+        sdl3 = "imgui_impl_sdl3.cpp",
+        sdlgpu3 = "imgui_impl_sdlgpu3.cpp",
+        sdlrenderer3 = "imgui_impl_sdlrenderer3.cpp",
+        vulkan = "imgui_impl_vulkan.cpp",
+        wgpu = "imgui_impl_wgpu.cpp",
+        dx9 = "imgui_impl_dx9.cpp",
+        dx10 = "imgui_impl_dx10.cpp",
+        dx11 = "imgui_impl_dx11.cpp",
+        dx12 = "imgui_impl_dx12.cpp",
+        opengl3 = "imgui_impl_opengl3.cpp",
+        win32 = "imgui_impl_win32.cpp",
+        osx = "imgui_impl_osx.cpp",
+        metal = "imgui_impl_metal.cpp"
+    }
+
+    for backend, sourceFile in pairs(backendSources) do
+        if isBackendEnabled(backend) then
+            file:write("set SOURCES=!SOURCES! \"!IMGUI_DIR!\\backends\\", sourceFile, "\"\n")
+        end
+    end
+
+    -- Configuration selection
+    file:write("\n:: Set configuration (Debug/Release)\n")
+    file:write("set CONFIG=Release\n")
+    file:write("if /i \"%1\"==\"debug\" set CONFIG=Debug\n\n")
+
+    -- Compiler flags based on configuration
+    file:write(":: Compiler flags based on configuration\n")
+    file:write("set CFLAGS=/MT /EHsc ")
+    file:write("/D \"IMGUI_DISABLE_OBSOLETE_FUNCTIONS\" ")
+    file:write("/D \"IMGUI_DISABLE_OBSOLETE_KEYIO\" ")
+    file:write("/D \"IMGUI_IMPL_API=extern \\\"C\\\"\"")
+    if isBackendEnabled("vulkan") then
+        file:write(" /D \"VK_NO_PROTOTYPES\"")
+    end
+    if isBackendEnabled("wgpu") then
+        file:write(" /D \"IMGUI_IMPL_WEBGPU_BACKEND_WGPU\"")
+    end
+    file:write("\n")
+    file:write("if /i \"!CONFIG!\"==\"Debug\" (\n")
+    file:write("    set CFLAGS=!CFLAGS! /Zi /D \"DEBUG\"\n")
+    file:write(") else (\n")
+    file:write("    set CFLAGS=!CFLAGS! /O2 /D \"NDEBUG\"\n")
+    file:write(")\n")
+
+    -- Output configurations
+    file:write("\n:: Output configurations\n")
+    file:write("set OUTPUT_DIR=.\\..\n")
+    file:write("set TARGET=imgui_", target_os, "_", target_arch, ".lib\n")
+
+    -- Compilation step
+    file:write("\n:: Compile ImGui\n")
+    file:write("echo Compiling ImGui...\n")
+    file:write("cl /c !CFLAGS! !INCLUDE_DIRS! !SOURCES! /Fo!OUTPUT_DIR!\\\n")
+    file:write("if %ERRORLEVEL% neq 0 (\n")
+    file:write("    echo Compilation failed!\n")
+    file:write("    exit /b 1\n")
+    file:write(")\n")
+
+    -- Link step (create static library)
+    file:write("\n:: Create static library\n")
+    file:write("echo Creating static library...\n")
+    file:write("lib /OUT:!OUTPUT_DIR!\\!TARGET! !OUTPUT_DIR!\\*.obj\n")
+    file:write("if %ERRORLEVEL% neq 0 (\n")
+    file:write("    echo Library creation failed!\n")
+    file:write("    exit /b 1\n")
+    file:write(")\n")
+
+    -- Cleanup
+    file:write("\n:: Cleanup\n")
+    file:write("del !OUTPUT_DIR!\\*.obj\n")
+    file:write("echo Done.\n")
+
+    file:close()
+    print("Generated build.bat successfully.")
 end
 
 workspace "ImGui"
@@ -387,15 +520,26 @@ workspace "ImGui"
 		end
 	end
 
-	local target_os = os.target()
-    local target_arch = os.architecture()
+	target_os = os.target()
+    target_arch = os.architecture()
+
+	-- When checking if a backend is enabled:
+	function isBackendEnabled(backendName)
+		for _, value in ipairs(ENABLED_BACKENDS) do
+			if value == backendName then
+				return true
+			end
+		end
+		return false
+	end
 
 	setupDirectories()
 	defineBackends()
 	downloadDependencies()
-	setupPythonEnvironment()
-	processImGuiHeaders()
-	generateImplEnabledOdin()
+	-- setupPythonEnvironment()
+	-- processImGuiHeaders()
+	-- generateImplEnabledOdin()
+	generateBuildFile()
 
 project "ImGui"
 	kind "StaticLib"
@@ -420,16 +564,6 @@ project "ImGui"
 		IMGUI_DIR .. "/*.cpp",
 		GENERATED_DIR .. "/*.cpp"
 	}
-
-	-- When checking if a backend is enabled:
-	local function isBackendEnabled(backendName)
-		for _, value in ipairs(ENABLED_BACKENDS) do
-			if value == backendName then
-				return true
-			end
-		end
-		return false
-	end
 
 	-- Use it in your conditional
 	if isBackendEnabled("glfw") then
@@ -485,6 +619,59 @@ project "ImGui"
 			"IMGUI_IMPL_WEBGPU_BACKEND_WGPU"
 		}
 	end
+
+	-- Modify win32 impl to avoid error C2159
+    if isBackendEnabled("win32") then
+        local original_file = string.format("%s\\backends\\imgui_impl_win32.cpp", IMGUI_DIR)
+        local backup_file = string.format("%s\\backends\\imgui_impl_win32.cpp.bak", IMGUI_DIR)
+
+        -- Read the original file
+        local file = io.open(original_file, "r")
+        if not file then
+            print("Error: Could not open " .. original_file)
+            return
+        end
+        local lines = {}
+        for line in file:lines() do
+            table.insert(lines, line)
+        end
+        file:close()
+
+        -- Ensure we have enough lines
+        if #lines < 706 then
+            print("Warning: " .. original_file .. " has fewer than 706 lines")
+            return
+        end
+
+        -- Modify lines 706 and 707 (Lua 1-based: 705 and 706)
+        lines[705] = lines[705]:gsub("^extern%s+IMGUI_IMPL_API", "IMGUI_IMPL_API")
+        lines[706] = lines[706]:gsub("^extern%s+IMGUI_IMPL_API", "IMGUI_IMPL_API")
+
+        -- Check if backup exists; create it only if it doesn't
+        local backup_exists = io.open(backup_file, "r") ~= nil
+        if not backup_exists then
+            if not os.copyfile(original_file, backup_file) then
+                print("Error: Could not create backup at " .. backup_file)
+                return
+            end
+            print("Created backup at " .. backup_file)
+        else
+            print("Backup already exists at " .. backup_file .. "; skipping backup")
+        end
+
+        -- Write the modified content back to the original file
+        local out_file = io.open(original_file, "w")
+        if not out_file then
+            print("Error: Could not write to " .. original_file)
+            return
+        end
+        for _, line in ipairs(lines) do
+            out_file:write(line .. "\n")
+        end
+        out_file:close()
+
+        print("Modified " .. original_file .. " in place")
+    end
 
 	-- List of backends that only need source files
 	local backends_with_sources = {

@@ -67,6 +67,28 @@ straightforward.
     The generated library file `imgui_windows_x64.lib` will be located in the root of the
     project directory.
 
+#### Compiling Without Visual Studio
+
+If you do not have Visual Studio installed, you can use the **Build Tools for Visual Studio
+2022**, which includes only the required tools to build.
+
+1. Follow the steps above to use `premake5` for generating the project files.
+2. [Download MSVC compiler/linker][] & Windows SDK without installing full Visual Studio.
+3. Make sure you have the required folder in the PATH:
+
+    - `<portable-msvc>\msvc\VC\Auxiliary\Build` - for `vcvars64.bat`
+    - `<portable-msvc>\msvc\VC\Tools\MSVC\14.43.34808\bin\Hostx64\x64` - for `cl` and `lib`
+
+4. Open a command window, navigate to the `build` directory, and locate the `build.bat` file.
+   This batch file will use the generated project files to build ImGui.
+5. Compile and link ImGui:
+
+    ```bash
+    build.bat
+    ```
+
+[Download MSVC compiler/linker]: https://gist.github.com/mmozeiko/7f3162ec2988e81e56d5c4e22cde9977
+
 ### Unix (macOS/Linux)
 
 1. Clone or [download](https://github.com/Capati/odin-imgui/archive/refs/heads/main.zip) this

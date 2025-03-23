@@ -125,7 +125,7 @@ local function setupDirectories()
     end
     -- Clean generated files
     if os.isdir(GENERATED_DIR) then
-        -- os.rmdir(GENERATED_DIR)
+        os.rmdir(GENERATED_DIR)
     end
     os.mkdir(GENERATED_DIR)
 end
@@ -536,9 +536,9 @@ workspace "ImGui"
 	setupDirectories()
 	defineBackends()
 	downloadDependencies()
-	-- setupPythonEnvironment()
-	-- processImGuiHeaders()
-	-- generateImplEnabledOdin()
+	setupPythonEnvironment()
+	processImGuiHeaders()
+	generateImplEnabledOdin()
 	generateBuildFile()
 
 project "ImGui"

@@ -5,7 +5,7 @@ import "base:runtime"
 import "core:encoding/json"
 import "core:log"
 import "core:mem"
-import "core:os"
+import os "core:os/old"
 import "core:strings"
 
 FunctionPointerList :: distinct [dynamic]string

@@ -5,7 +5,7 @@ import "core:encoding/json"
 import "core:log"
 import "core:mem"
 import "core:mem/virtual"
-import "core:os"
+import os "core:os/old"
 
 Generator :: struct {
 	// Allocator

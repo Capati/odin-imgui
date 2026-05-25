@@ -3,7 +3,7 @@ package imgui_gen
 // Core
 import "core:encoding/json"
 import "core:mem"
-import "core:os"
+import os "core:os/old"
 import "core:slice"
 
 // Writes the defines from the given JSON data to the specified handle.

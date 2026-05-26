@@ -36,10 +36,6 @@ foreign lib {
 	@(link_name = "ImGui_ImplOpenGL3_RenderDrawData")
 	render_draw_data :: proc(draw_data: ^Draw_Data) ---
 	// (Optional) Called by Init/NewFrame/Shutdown
-	@(link_name = "ImGui_ImplOpenGL3_CreateFontsTexture")
-	create_fonts_texture :: proc() -> bool ---
-	@(link_name = "ImGui_ImplOpenGL3_DestroyFontsTexture")
-	destroy_fonts_texture :: proc() ---
 	@(link_name = "ImGui_ImplOpenGL3_CreateDeviceObjects")
 	create_device_objects :: proc() -> bool ---
 	@(link_name = "ImGui_ImplOpenGL3_DestroyDeviceObjects")

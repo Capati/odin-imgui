@@ -66,10 +66,6 @@ foreign lib {
 	new_frame :: proc() ---
 	@(link_name = "ImGui_ImplVulkan_RenderDrawData")
 	render_draw_data :: proc(draw_data: ^Draw_Data, command_buffer: vk.CommandBuffer, pipeline: vk.Pipeline = {}) ---
-	@(link_name = "ImGui_ImplVulkan_CreateFontsTexture")
-	create_fonts_texture :: proc() -> bool ---
-	@(link_name = "ImGui_ImplVulkan_DestroyFontsTexture")
-	destroy_fonts_texture :: proc() ---
 	// To override MinImageCount after initialization (e.g. if swap chain is recreated)
 	@(link_name = "ImGui_ImplVulkan_SetMinImageCount")
 	set_min_image_count :: proc(min_image_count: u32) ---

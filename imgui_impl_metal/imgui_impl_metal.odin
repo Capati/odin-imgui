@@ -43,10 +43,6 @@ foreign lib {
 	@(link_name = "ImGui_ImplMetal_RenderDrawData")
 	render_draw_data :: proc(draw_data: ^Draw_Data, commandBuffer: ^mtl.CommandBuffer, commandEncoder: ^mtl.RenderCommandEncoder) ---
 	// Called by Init/NewFrame/Shutdown
-	@(link_name = "ImGui_ImplMetal_CreateFontsTexture")
-	create_fonts_texture :: proc(device: ^mtl.Device) -> bool ---
-	@(link_name = "ImGui_ImplMetal_DestroyFontsTexture")
-	destroy_fonts_texture :: proc() ---
 	@(link_name = "ImGui_ImplMetal_CreateDeviceObjects")
 	create_device_objects :: proc(device: ^mtl.Device) -> bool ---
 	@(link_name = "ImGui_ImplMetal_DestroyDeviceObjects")

@@ -27,9 +27,9 @@ when ODIN_OS == .Windows {
 // - Remember to set `color_target_format` to the correct format. If you're rendering to the
 //   swapchain, call `sdl3.GetGPUSwapchainTextureFormat` to query the right value.
 Init_Info :: struct {
-	device:              ^sdl3.GPUDevice,
-	color_target_format: sdl3.GPUTextureFormat,
-	msaa_samples:        sdl3.GPUSampleCount,
+	device:                ^sdl3.GPUDevice,
+	color_target_format:   sdl3.GPUTextureFormat,
+	msaa_samples:          sdl3.GPUSampleCount,
 }
 
 @(default_calling_convention = "c")
@@ -45,12 +45,10 @@ foreign lib {
 	prepare_draw_data :: proc(draw_data: ^im.Draw_Data, command_buffer: ^sdl3.GPUCommandBuffer) ---
 	@(link_name = "ImGui_ImplSDLGPU3_RenderDrawData")
 	render_draw_data :: proc(draw_data: ^im.Draw_Data, command_buffer: ^sdl3.GPUCommandBuffer, render_pass: ^sdl3.GPURenderPass, pipeline: ^sdl3.GPUGraphicsPipeline = nil) ---
+
+	// Use if you want to reset your rendering device without losing Dear ImGui state.
 	@(link_name = "ImGui_ImplSDLGPU3_CreateDeviceObjects")
 	create_device_objects :: proc() ---
 	@(link_name = "ImGui_ImplSDLGPU3_DestroyDeviceObjects")
 	destroy_device_objects :: proc() ---
-	@(link_name = "ImGui_ImplSDLGPU3_CreateFontsTexture")
-	create_fonts_texture :: proc() ---
-	@(link_name = "ImGui_ImplSDLGPU3_DestroyFontsTexture")
-	destroy_fonts_texture :: proc() ---
 }

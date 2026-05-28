@@ -4,7 +4,7 @@ package imgui_gen
 import "base:runtime"
 import "core:encoding/json"
 import "core:mem"
-import "core:os"
+import os "core:os/old"
 import "core:slice"
 import "core:strconv"
 import "core:strings"

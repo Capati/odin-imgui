@@ -30,6 +30,16 @@ Gamepad_Mode :: enum i32 {
 	Manual     = 2,
 }
 
+// (Advanced, for X11 users) Override Mouse Capture mode. Mouse capture allows receiving updated mouse position after clicking inside our window and dragging outside it.
+// Having this 'Enabled' is in theory always better. But, on X11 if you crash/break to debugger while capture is active you may temporarily lose access to your mouse.
+// The best solution is to setup your debugger to automatically release capture, e.g. 'setxkbmap -option grab:break_actions && xdotool key XF86Ungrab' or via a GDB script. See #3650.
+// But you may independently decide on X11, when a debugger is attached, to set this value to ImGui_ImplSDL3_MouseCaptureMode_Disabled.
+Mouse_Capture_Mode :: enum i32 {
+	Enabled          = 0,
+	EnabledAfterDrag = 1,
+	Disabled         = 2,
+}
+
 @(default_calling_convention = "c")
 foreign lib {
 	// Follow "Getting Started" link and check examples/ folder to learn about using backends!
@@ -55,4 +65,6 @@ foreign lib {
 	process_event :: proc(event: ^sdl3.Event) -> bool ---
 	@(link_name = "ImGui_ImplSDL3_SetGamepadMode")
 	set_gamepad_mode :: proc(mode: Gamepad_Mode, manual_gamepads_array: [^]^sdl3.Gamepad = nil, manual_gamepads_count: i32 = -1) ---
+	@(link_name = "ImGui_ImplSDL3_SetMouseCaptureMode")
+	set_mouse_capture_mode :: proc(mode: Mouse_Capture_Mode) ---
 }

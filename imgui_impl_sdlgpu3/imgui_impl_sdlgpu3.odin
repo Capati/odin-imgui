@@ -27,9 +27,18 @@ when ODIN_OS == .Windows {
 // - Remember to set `color_target_format` to the correct format. If you're rendering to the
 //   swapchain, call `sdl3.GetGPUSwapchainTextureFormat` to query the right value.
 Init_Info :: struct {
-	device:              ^sdl3.GPUDevice,
-	color_target_format: sdl3.GPUTextureFormat,
-	msaa_samples:        sdl3.GPUSampleCount,
+	device:                ^sdl3.GPUDevice,
+	color_target_format:   sdl3.GPUTextureFormat,
+	msaa_samples:          sdl3.GPUSampleCount,
+	swapchain_composition: sdl3.GPUSwapchainComposition, // Only used in multi-viewports mode.
+	present_mode:          sdl3.GPUPresentMode,          // Only used in multi-viewports mode.
+}
+
+// [BETA] Selected render state data shared with callbacks.
+// This is temporarily stored in GetPlatformIO().Renderer_RenderState during the ImGui_ImplSDLGPU3_RenderDrawData() call.
+// (Please open an issue if you feel you need access to more data)
+Render_State :: struct {
+	device: ^sdl3.GPUDevice,
 }
 
 @(default_calling_convention = "c")
@@ -41,16 +50,18 @@ foreign lib {
 	shutdown :: proc() ---
 	@(link_name = "ImGui_ImplSDLGPU3_NewFrame")
 	new_frame :: proc() ---
-	@(link_name = "Imgui_ImplSDLGPU3_PrepareDrawData")
+	@(link_name = "ImGui_ImplSDLGPU3_PrepareDrawData")
 	prepare_draw_data :: proc(draw_data: ^im.Draw_Data, command_buffer: ^sdl3.GPUCommandBuffer) ---
 	@(link_name = "ImGui_ImplSDLGPU3_RenderDrawData")
 	render_draw_data :: proc(draw_data: ^im.Draw_Data, command_buffer: ^sdl3.GPUCommandBuffer, render_pass: ^sdl3.GPURenderPass, pipeline: ^sdl3.GPUGraphicsPipeline = nil) ---
+
+	// Use if you want to reset your rendering device without losing Dear ImGui state.
 	@(link_name = "ImGui_ImplSDLGPU3_CreateDeviceObjects")
 	create_device_objects :: proc() ---
 	@(link_name = "ImGui_ImplSDLGPU3_DestroyDeviceObjects")
 	destroy_device_objects :: proc() ---
-	@(link_name = "ImGui_ImplSDLGPU3_CreateFontsTexture")
-	create_fonts_texture :: proc() ---
-	@(link_name = "ImGui_ImplSDLGPU3_DestroyFontsTexture")
-	destroy_fonts_texture :: proc() ---
+
+	// (Advanced) Use e.g. if you need to precisely control the timing of texture updates (e.g. for staged rendering), by setting ImDrawData::Textures = nullptr to handle this manually.
+	@(link_name = "ImGui_ImplSDLGPU3_UpdateTexture")
+	update_texture :: proc(^im.Texture_Data) ---
 }

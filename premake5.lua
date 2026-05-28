@@ -20,13 +20,13 @@ newoption {
 
 -- Define default versions
 local defaultVersions = {
-    imgui = "v1.91.9-docking",
-    dearBindings = "f6e8ea7",
+    imgui = "v1.92.8-docking",
+    dearBindings = "c9ff649",
     glfw = "3.4",
     vulkan = "v1.4.307",
     wgpu = "97636ad",
     sdl2 = "release-2.28.3",
-    sdl3 = "release-3.2.4"
+    sdl3 = "release-3.4.2"
 }
 
 -- Define options for each backend

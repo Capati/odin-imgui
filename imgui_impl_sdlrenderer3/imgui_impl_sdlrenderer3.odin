@@ -37,10 +37,6 @@ foreign lib {
     @(link_name = "ImGui_ImplSDLRenderer3_RenderDrawData")
     render_draw_data :: proc(draw_data: ^Draw_Data, renderer: ^sdl3.Renderer) ---
     // Called by Init/NewFrame/Shutdown
-    @(link_name = "ImGui_ImplSDLRenderer3_CreateFontsTexture")
-    create_fonts_texture :: proc() -> bool ---
-    @(link_name = "ImGui_ImplSDLRenderer3_DestroyFontsTexture")
-    destroy_fonts_texture :: proc() ---
     @(link_name = "ImGui_ImplSDLRenderer3_CreateDeviceObjects")
     create_device_objects :: proc() -> bool ---
     @(link_name = "ImGui_ImplSDLRenderer3_DestroyDeviceObjects")

@@ -25,14 +25,32 @@ when ODIN_OS == .Windows {
 
 Draw_Data :: im.Draw_Data
 
-// Initialization data, for ImGui_ImplVulkan_Init()
+// Matches C ImVector<VkDynamicState>
+ImVector_DynamicState :: struct {
+	size:     i32,
+	capacity: i32,
+	data:     ^vk.DynamicState,
+}
+
+// Matches C ImGui_ImplVulkan_PipelineInfo
+// [Please zero-clear before use!]
+Pipeline_Info :: struct {
+	render_pass:                     vk.RenderPass,                     // Ignored if using dynamic rendering
+	subpass:                         u32,                               //
+	msaa_samples:                    vk.SampleCountFlag,                // 0 defaults to VK_SAMPLE_COUNT_1_BIT
+	extra_dynamic_states:            ImVector_DynamicState,             // Optional, allows to insert more dynamic states into our VkPipeline
+	pipeline_rendering_create_info:  vk.PipelineRenderingCreateInfoKHR, // Valid if .sType == VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR
+	swap_chain_image_usage:          vk.ImageUsageFlags,                // Extra flags for secondary viewports
+}
+
+// Matches C ImGui_ImplVulkan_InitInfo
 // [Please zero-clear before use!]
 // - About descriptor pool:
-//   - A VkDescriptorPool should be created with VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+//   - A descriptor_pool should be created with VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
 //     and must contain a pool size large enough to hold a small number of VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER descriptors.
-//   - As an convenience, by setting DescriptorPoolSize > 0 the backend will create one for you.
+//   - As an convenience, by setting descriptor_pool_size > 0 the backend will create one for you.
 // - About dynamic rendering:
-//   - When using dynamic rendering, set UseDynamicRendering=true and fill PipelineRenderingCreateInfo structure.
+//   - When using dynamic rendering, set use_dynamic_rendering=true and fill Pipeline_Info.pipeline_rendering_create_info structure.
 Init_Info :: struct {
 	api_version:                    u32,
 	instance:                       vk.Instance,
@@ -40,19 +58,27 @@ Init_Info :: struct {
 	device:                         vk.Device,
 	queue_family:                   u32,
 	queue:                          vk.Queue,
-	descriptor_pool:                vk.DescriptorPool, // See requirements in note above; ignored if using DescriptorPoolSize > 0
-	render_pass:                    vk.RenderPass, // Ignored if using dynamic rendering
-	min_image_count:                u32, // >= 2
-	image_count:                    u32, // >= MinImageCount
-	msaa_samples:                   vk.SampleCountFlag, // 0 defaults to VK_SAMPLE_COUNT_1_BIT
-	pipeline_cache:                 vk.PipelineCache,
-	subpass:                        u32,
-	descriptor_pool_size:           u32,
+	descriptor_pool:                vk.DescriptorPool,          // Ignored if using descriptor_pool_size > 0
+	descriptor_pool_size:           u32,                        // Optional: set to create internal pool automatically
+	min_image_count:                u32,                        // >= 2
+	image_count:                    u32,                        // >= min_image_count
+	pipeline_cache:                 vk.PipelineCache,           // Optional
+
+	// Pipeline
+	pipeline_info_main:             Pipeline_Info,              // Infos for Main Viewport (created by app/user)
+	pipeline_info_for_viewports:    Pipeline_Info,              // Infos for Secondary Viewports (created by backend)
+
+	// Dynamic Rendering
 	use_dynamic_rendering:          bool,
-	pipeline_rendering_create_info: vk.PipelineRenderingCreateInfoKHR,
+
+	// Allocation, Debugging
 	allocator:                      ^vk.AllocationCallbacks,
 	check_vk_result_fn:             proc "c" (err: vk.Result),
-	min_allocation_size:            vk.DeviceSize, // Minimum allocation size. Set to 1024*1024 to satisfy zealous best practices validation layer and waste a little memory.
+	min_allocation_size:            vk.DeviceSize,              // Minimum allocation size. Set to 1024*1024 to satisfy zealous best practices validation layer and waste a little memory.
+
+	// Custom shaders
+	custom_shader_vert_create_info: vk.ShaderModuleCreateInfo,
+	custom_shader_frag_create_info: vk.ShaderModuleCreateInfo,
 }
 
 @(default_calling_convention = "c")
@@ -70,14 +96,19 @@ foreign lib {
 	@(link_name = "ImGui_ImplVulkan_SetMinImageCount")
 	set_min_image_count :: proc(min_image_count: u32) ---
 	// Register a texture (VkDescriptorSet == ImTextureID)
-	// FIXME: This is experimental in the sense that we are unsure how to best design/tackle this problem
-	// Please post to https://github.com/ocornut/imgui/pull/914 if you have suggestions.
+	// Note: The C library has two overloads (with and without sampler). The sampler version is obsolete.
+	// Both link to "ImGui_ImplVulkan_AddTexture", so we only declare the current signature.
 	@(link_name = "ImGui_ImplVulkan_AddTexture")
-	add_texture :: proc(sampler: vk.Sampler, image_view: vk.ImageView, image_layout: vk.ImageLayout) -> vk.DescriptorSet ---
+	add_texture :: proc(image_view: vk.ImageView, image_layout: vk.ImageLayout) -> vk.DescriptorSet ---
 	@(link_name = "ImGui_ImplVulkan_RemoveTexture")
 	remove_texture :: proc(descriptor_set: vk.DescriptorSet) ---
 	// Optional: load Vulkan functions with a custom function loader
-	// This is only useful with IMGUI_IMPL_VULKAN_NO_PROTOTYPES / VK_NO_PROTOTYPES
 	@(link_name = "ImGui_ImplVulkan_LoadFunctions")
 	load_functions :: proc(api_version: u32, loader_func: proc "c" (function_name: cstring, user_data: rawptr) -> vk.ProcVoidFunction, user_data: rawptr = nil) -> bool ---
+	// Create main pipeline (e.g. if you need to recreate without reinitializing)
+	@(link_name = "ImGui_ImplVulkan_CreateMainPipeline")
+	create_main_pipeline :: proc(info: ^Pipeline_Info) ---
+	// Update texture
+	@(link_name = "ImGui_ImplVulkan_UpdateTexture")
+	update_texture :: proc(tex: ^im.Texture_Data) ---
 }

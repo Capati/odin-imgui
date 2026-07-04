@@ -5,7 +5,7 @@ import "core:encoding/json"
 import "core:log"
 import "core:mem"
 import "core:mem/virtual"
-import os "core:os/old"
+import "core:os"
 
 Generator :: struct {
 	// Allocator
@@ -26,8 +26,8 @@ Generator :: struct {
 
 FLAG_TYPE :: "i32"
 TAB_SPACE :: "    "
-GENERATED_DIR :: "./generated/"
-GENERATED_BACKENDS_DIR :: "./generated/backends/"
+GENERATED_DIR :: "./build/generated/"
+GENERATED_BACKENDS_DIR :: GENERATED_DIR + "backends/"
 
 // odinfmt: disable
 FOREIGN_IMPORT :: `
@@ -37,34 +37,40 @@ when ODIN_OS == .Linux || ODIN_OS == .Darwin {
 
 when ODIN_OS == .Windows {
 	when ODIN_ARCH == .amd64 {
-		foreign import lib "imgui_windows_x64.lib"
+		@export
+		foreign import imguilib "imgui_windows_x64.lib"
 	} else {
-		foreign import lib "imgui_windows_arm64.lib"
+		@export
+		foreign import imguilib "imgui_windows_arm64.lib"
 	}
 } else when ODIN_OS == .Linux {
 	when ODIN_ARCH == .amd64 {
-		foreign import lib "libimgui_linux_x64.a"
+		@export
+		foreign import imguilib "libimgui_linux_x64.a"
 	} else {
-		foreign import lib "libimgui_linux_arm64.a"
+		@export
+		foreign import imguilib "libimgui_linux_arm64.a"
 	}
 } else when ODIN_OS == .Darwin {
 	when ODIN_ARCH == .amd64 {
-		foreign import lib "libimgui_macosx_x64.a"
+		@export
+		foreign import imguilib "libimgui_macosx_x64.a"
 	} else {
-		foreign import lib "libimgui_macosx_arm64.a"
+		@export
+		foreign import imguilib "libimgui_macosx_arm64.a"
 	}
 }
 
 CHECKVERSION :: proc() {
 	ensure(
-		debug_check_version_and_data_layout(
+		DebugCheckVersionAndDataLayout(
 			VERSION,
 			size_of(IO),
 			size_of(Style),
 			size_of(Vec2),
 			size_of(Vec4),
-			size_of(Draw_Vert),
-			size_of(Draw_Idx),
+			size_of(DrawVert),
+			size_of(DrawIdx),
 		),
 	)
 }
@@ -109,7 +115,7 @@ write_imgui :: proc(gen: ^Generator) -> (ok: bool) {
 	file_allocator := mem.arena_allocator(&gen.tmp_arena)
 	defer free_all(file_allocator)
 
-	filename := "./../imgui.odin"
+	filename := "./imgui.odin"
 	if os.exists(filename) {
 		os.remove(filename)
 	}
@@ -135,7 +141,7 @@ write_imgui :: proc(gen: ^Generator) -> (ok: bool) {
 
 File_Handle :: struct {
 	data:   json.Value,
-	handle: os.Handle,
+	handle: ^os.File,
 }
 
 create_file_handle :: proc(
@@ -143,8 +149,8 @@ create_file_handle :: proc(
 	json_path: string,
 	allocator := context.allocator,
 ) -> File_Handle {
-	json_file, json_file_ok := os.read_entire_file_from_filename(json_path, allocator)
-	if !json_file_ok {
+	json_file, json_file_err := os.read_entire_file(json_path, allocator)
+	if json_file_err != nil {
 		log.panicf("Failed to load '%s' file!", json_path)
 	}
 

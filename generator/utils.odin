@@ -5,12 +5,11 @@ import "base:runtime"
 import "core:encoding/json"
 import "core:fmt"
 import "core:mem"
-import os "core:os/old"
+import "core:os"
 import "core:strings"
 import "core:unicode"
 
 fill_type_map :: proc(gen: ^Generator) {
-	// odinfmt: disable
 	gen.type_map["ImGuiID"]            = "ID"
 	gen.type_map["ImGuiID*"]           = "^ID"
 	gen.type_map["ImGuiIO"]            = "IO"
@@ -61,7 +60,6 @@ fill_type_map :: proc(gen: ^Generator) {
 	gen.type_map["ichar"]              = "i8"
 	gen.type_map["char"]               = "u8"
 	gen.type_map["bool"]               = "bool"
-	// odinfmt: enable
 }
 
 test_ifndef_condition :: proc(o: ^json.Object, expression_value: string) -> bool {
@@ -83,7 +81,8 @@ remove_imgui :: proc(name: string, allocator: mem.Allocator) -> string {
 
 	str := strings.clone(name, ta)
 
-	remove_prefixes := []string{"cImGui_Impl", "ImGui_Impl", "IMGUI_", "ImGui_", "ImGui", "IM_"}
+	remove_prefixes := []string{
+		"cImGui_Impl", "ImGui_Impl", "IMGUI_", "ImGui_", "ImGui", "IM_"}
 
 	for prefix in remove_prefixes {
 		if strings.has_prefix(str, prefix) {
@@ -100,13 +99,13 @@ remove_imgui :: proc(name: string, allocator: mem.Allocator) -> string {
 	return strings.clone(str, allocator)
 }
 
-write_package_name :: proc(handle: os.Handle, name := "imgui", nl := true) {
+write_package_name :: proc(handle: ^os.File, name := "imgui", nl := true) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 	package_name := fmt.tprintf("package %s\n%s", name, nl ? "\n" : "")
 	os.write_string(handle, package_name)
 }
 
-write_package_import :: proc(handle: os.Handle, name: string, nl := true) {
+write_package_import :: proc(handle: ^os.File, name: string, nl := true) {
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 	package_name := fmt.tprintf("import %s\n%s", name, nl ? "\n" : "")
 	os.write_string(handle, package_name)
@@ -114,7 +113,7 @@ write_package_import :: proc(handle: os.Handle, name: string, nl := true) {
 
 write_constant :: proc(
 	gen: ^Generator,
-	handle: os.Handle,
+	handle: ^os.File,
 	name: string,
 	comments: string,
 	value: string,
@@ -169,7 +168,7 @@ convert_type_name :: proc(
 		return strings.clone(name, allocator)
 	}
 	clean_name := remove_imgui(name, allocator)
-	return pascal_to_ada_case(clean_name, allocator)
+	return clean_name
 }
 
 // Helper to process inner type recursively

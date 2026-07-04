@@ -6,9 +6,10 @@ import "core:encoding/json"
 import "core:fmt"
 import "core:log"
 import "core:mem"
-import os "core:os/old"
+import "core:strings"
+import "core:os"
 
-write_typedefs :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value) {
+write_typedefs :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Value) {
 	ta := context.temp_allocator
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
@@ -57,12 +58,12 @@ write_typedefs :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Valu
 			typedef_name = remove_imgui(typedef_name_raw, allocator)
 		}
 
-		typedef_name = pascal_to_ada_case(typedef_name, allocator)
-
 		// Only use typedef that is not in the identifiers map
 		if _, typedef_exists := gen.identifier_map[typedef_name]; typedef_exists {
 			continue
 		}
+
+		typedef_name = strings.clone(typedef_name, allocator)
 
 		typedef_type, typedef_type_ok := t.(json.Object)["type"]
 		assert(typedef_type_ok, "Typedef type is missing!")
@@ -93,6 +94,10 @@ write_typedefs :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Valu
 				typedef_type_value = elem
 			} else {
 				typedef_type_value = typedef_type_declaration
+			}
+
+			if strings.starts_with(typedef_type_value, "Im") {
+				typedef_type_value = remove_imgui(typedef_type_value, allocator)
 			}
 
 			typedef_to_write := fmt.tprintf("%s :: %s\n", typedef_name, typedef_type_value)

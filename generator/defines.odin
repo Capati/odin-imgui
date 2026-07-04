@@ -3,18 +3,22 @@ package imgui_gen
 // Core
 import "core:encoding/json"
 import "core:mem"
-import os "core:os/old"
+import "core:os"
 import "core:slice"
 
 // Writes the defines from the given JSON data to the specified handle.
-write_defines :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value) {
+write_defines :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Value) {
 	root := json_data.(json.Object)
 
 	defines, defines_ok := root["defines"]
 	assert(defines_ok, "Missing 'defines' root object!")
 
 	// Some definitions to ignore
-	defines_to_ignore := []string{"IMGUI_IMPL_API"}
+	defines_to_ignore := []string{
+		"IMGUI_IMPL_API",
+		"IM_ARRAYSIZE",
+		"ImTextureID_Invalid",
+	}
 	is_ignored_define :: #force_inline proc(defines: []string, name: string) -> bool {
 		return slice.contains(defines, name)
 	}
@@ -50,7 +54,8 @@ write_defines :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value
 		if content_value, content_ok := define_obj["content"]; content_ok {
 			attached_comments := get_attached_comments(&define_obj, allocator)
 			name := remove_imgui(name_raw, allocator)
-			write_constant(gen, handle, name, attached_comments, content_value.(json.String))
+			content_str := content_value.(json.String)
+			write_constant(gen, handle, name, attached_comments, content_str)
 		}
 	}
 

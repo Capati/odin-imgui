@@ -5,12 +5,12 @@ import "base:runtime"
 import "core:encoding/json"
 import "core:log"
 import "core:mem"
-import os "core:os/old"
+import "core:os"
 import "core:strings"
 
 FunctionPointerList :: distinct [dynamic]string
 
-write_structs :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value) {
+write_structs :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Value) {
 	root := json_data.(json.Object)
 
 	structs, structs_ok := root["structs"]
@@ -114,7 +114,7 @@ write_structs :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value
 					strings.write_string(&b, TAB_SPACE)
 
 					field_name, _ = strings.remove(field_name, "_", 1, ta)
-					field_name = strings.to_snake_case(field_name, ta)
+					// field_name = strings.to_snake_case(field_name, ta)
 
 					strings.write_string(&b, field_name)
 					strings.write_string(&b, ": ")
@@ -123,7 +123,12 @@ write_structs :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value
 					continue
 				}
 
-				field_name = strings.to_snake_case(field_name, ta)
+				// field_name = strings.to_snake_case(field_name, ta)
+
+				// TODO(Capati): better to handle cycle types?
+				if field_name == "ID" {
+					field_name = "id"
+				}
 
 				strings.write_string(&b, TAB_SPACE)
 				strings.write_string(&b, field_name)

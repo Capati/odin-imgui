@@ -6,11 +6,11 @@ import "core:encoding/json"
 import "core:fmt"
 import "core:log"
 import "core:mem"
-import os "core:os/old"
+import "core:os"
 import "core:strings"
 import "core:unicode"
 
-write_enums :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value) {
+write_enums :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Value) {
 	root := json_data.(json.Object)
 
 	enums, defines_ok := root["enums"]
@@ -39,8 +39,8 @@ write_enums :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value) 
 			enum_name_raw_no_suffix = enum_name_raw[:len(enum_name_raw) - 1]
 		}
 
-		enum_name := remove_imgui(enum_name_raw_no_suffix, allocator)
-		enum_name = pascal_to_ada_case(enum_name, gen.allocator)
+		enum_name := remove_imgui(enum_name_raw_no_suffix, gen.allocator)
+		// enum_name = pascal_to_ada_case(enum_name, gen.allocator)
 
 		// Add this name to the map of identifiers found, will be used later
 		// to generate remain definitions
@@ -217,7 +217,7 @@ create_enum_entry :: proc(
 			Enum_Constant {
 				allocator = allocator,
 				comment = get_attached_comments(&element_obj, allocator),
-				name = pascal_to_ada_case(entry_name, allocator),
+				name = strings.clone(entry_name, allocator),
 				value = value,
 			},
 		)
@@ -226,7 +226,7 @@ create_enum_entry :: proc(
 	return
 }
 
-write_enum_entry :: proc(entry: Enum_Definition, handle: os.Handle) {
+write_enum_entry :: proc(entry: Enum_Definition, handle: ^os.File) {
 	ta := context.temp_allocator
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 
@@ -284,7 +284,7 @@ write_enum_entry :: proc(entry: Enum_Definition, handle: os.Handle) {
 		if check_can_be_constant(can_be_constant[:], v.name) {
 			append(&constants, create_enum_constant(entry, v, ta))
 			continue
-		} else if found_count || v.name == "COUNT" {
+		} else if found_count || strings.ends_with(v.name, "COUNT") {
 			found_count = true
 			append(&constants, create_enum_constant(entry, v, ta))
 			continue
@@ -365,14 +365,14 @@ write_enum_entry :: proc(entry: Enum_Definition, handle: os.Handle) {
 					for f, _ in curr {
 						flag_entry_name := f[strings.index(f, "_") + 1:]
 						strings.write_byte(&b_flags, '.')
-						flag_entry_name = pascal_to_ada_case(flag_entry_name, ta)
+						flag_entry_name = strings.clone(flag_entry_name, ta)
 						strings.write_string(&b_flags, flag_entry_name)
 						strings.write_string(&b_flags, ", ")
 					}
 					continue
 				}
 				flag_entry_name := flag[strings.index(flag, "_") + 1:]
-				flag_entry_name = pascal_to_ada_case(flag_entry_name, ta)
+				flag_entry_name = strings.clone(flag_entry_name, ta)
 				strings.write_byte(&b_flags, '.')
 				strings.write_string(&b_flags, flag_entry_name)
 				if flag_idx < len(v.aliases) - 1 {

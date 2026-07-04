@@ -4,12 +4,12 @@ package imgui_gen
 import "base:runtime"
 import "core:encoding/json"
 import "core:mem"
-import os "core:os/old"
+import "core:os"
 import "core:slice"
 import "core:strconv"
 import "core:strings"
 
-write_procedures :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Value) {
+write_procedures :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Value) {
 	root := json_data.(json.Object)
 
 	functions, functions_ok := root["functions"]
@@ -28,7 +28,9 @@ write_procedures :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Va
 	reserved_name_map["map"] = "_map"
 
 	// Start foreign block
-	os.write_string(handle, "@(default_calling_convention = \"c\")\nforeign lib {\n")
+	os.write_string(handle,
+		"@(default_calling_convention = \"c\", " +
+		"link_prefix = \"ImGui_\")\nforeign imguilib {\n")
 
 	allocator := mem.arena_allocator(&gen.tmp_arena)
 
@@ -64,15 +66,15 @@ write_procedures :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Va
 			strings.write_string(&b, preceding_comments)
 		}
 
-		// Write the link name
-		strings.write_string(&b, TAB_SPACE)
-		strings.write_string(&b, "@(link_name = \"")
-		strings.write_string(&b, proc_name_raw)
-		strings.write_string(&b, "\")\n")
+		// // Write the link name
+		// strings.write_string(&b, TAB_SPACE)
+		// strings.write_string(&b, "@(link_name = \"")
+		// strings.write_string(&b, proc_name_raw)
+		// strings.write_string(&b, "\")\n")
 
 		// Get the procedure name and clean up
 		proc_name := remove_imgui(proc_name_raw, allocator)
-		proc_name = strings.to_snake_case(proc_name, allocator)
+		// proc_name = strings.to_snake_case(proc_name, allocator)
 		strings.write_string(&b, TAB_SPACE)
 		strings.write_string(&b, proc_name)
 		strings.write_string(&b, " :: proc(")
@@ -101,6 +103,7 @@ write_procedures :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Va
 
 				if !arg_type_value_ok && is_varargs {
 					// Check for varargs first, this occurs when there is no arg type
+					strings.write_string(&b, "\n\t\t")
 					strings.write_string(&b, "#c_vararg args: ..any")
 				} else if details_value_ok {
 					// When there is a type_details field, we assume its a function pointer
@@ -111,6 +114,7 @@ write_procedures :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Va
 						is_callback = true,
 						allocator = allocator,
 					)
+					strings.write_string(&b, "\n\t\t")
 					strings.write_string(&b, arg_name)
 					strings.write_string(&b, ": ")
 					strings.write_string(&b, func_def.definition)
@@ -130,6 +134,7 @@ write_procedures :: proc(gen: ^Generator, handle: os.Handle, json_data: ^json.Va
 						is_parameter = true,
 						allocator = allocator,
 					)
+					strings.write_string(&b, "\n\t\t")
 					strings.write_string(&b, arg_name)
 					strings.write_string(&b, ": ")
 					strings.write_string(&b, declaration)
@@ -365,7 +370,7 @@ get_proc_definition :: proc(
 		}
 	}
 
-	proc_name_out := pascal_to_ada_case(proc_name, allocator)
+	proc_name_out := strings.clone(proc_name, allocator)
 	proc_definition := strings.clone(strings.to_string(b), allocator)
 
 	return Proc_Definition{name = proc_name_out, definition = proc_definition}

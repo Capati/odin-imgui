@@ -1,6 +1,6 @@
 # Odin ImGui
 
-[Odin Language][] bindings for **Dear ImGui v1.91.8-docking**.
+[Odin Language][] bindings for **Dear ImGui v1.92.8-docking**.
 
 ## Table of Contents
 
@@ -55,7 +55,7 @@ straightforward.
    project files with desired backends:
 
     ```shell
-    premake5 --backends=glfw,opengl3 vs2022
+    premake5 --backends=glfw,opengl3 vs2026
     ```
 
 4. From the project folder, open the directory `build\make\windows`, them open the generated
@@ -100,7 +100,7 @@ If you do not have Visual Studio installed, you can use the **Build Tools for Vi
    desired backends:
 
     ```bash
-    premake5 --backends=glfw,opengl3 gmake2
+    premake5 --backends=glfw,opengl3 gmake
     # On macOS, you can also use Xcode:
     premake5 --backends=glfw,opengl3 xcode4
     ```

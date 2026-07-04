@@ -38,9 +38,14 @@ straightforward.
     location.
   - For Unix, also requires **GNU libc 2.38**.
 - [Git](http://git-scm.com/downloads) - required for clone backend dependencies
-- [Python](https://www.python.org/downloads/) - version 3.3.x is required by [dear_bindings][]
-  and `venv` (Python Virtual Environment)
-- C++ compiler - `vs2022` on Windows or `g++/clang` on Unix
+- [Python](https://www.python.org/downloads/) - version 3.3.x or higher is required by
+  [dear_bindings][]
+  - **Linux users:** You also need the `venv` and `pip` modules, which may not be installed by
+      default:
+
+    ```bash
+    sudo apt install python3-venv python3-pip
+    ```
 
 ### Windows
 

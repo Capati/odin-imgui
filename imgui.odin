@@ -1,6 +1,8 @@
 package imgui
 
-when ODIN_OS == .Linux || ODIN_OS == .Darwin {
+when ODIN_OS == .Linux {
+	@(require) foreign import stdcpp "system:stdc++"
+} else when ODIN_OS == .Darwin {
 	@(require) foreign import stdcpp "system:c++"
 }
 

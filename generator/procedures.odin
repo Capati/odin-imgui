@@ -29,8 +29,8 @@ write_procedures :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Val
 
 	// Start foreign block
 	os.write_string(handle,
-		"@(default_calling_convention = \"c\", " +
-		"link_prefix = \"ImGui_\")\nforeign imguilib {\n")
+		"@(default_calling_convention = \"c\")" +
+		"\nforeign imguilib {\n")
 
 	allocator := mem.arena_allocator(&gen.tmp_arena)
 
@@ -66,11 +66,11 @@ write_procedures :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Val
 			strings.write_string(&b, preceding_comments)
 		}
 
-		// // Write the link name
-		// strings.write_string(&b, TAB_SPACE)
-		// strings.write_string(&b, "@(link_name = \"")
-		// strings.write_string(&b, proc_name_raw)
-		// strings.write_string(&b, "\")\n")
+		// Write the link name
+		strings.write_string(&b, TAB_SPACE)
+		strings.write_string(&b, "@(link_name = \"")
+		strings.write_string(&b, proc_name_raw)
+		strings.write_string(&b, "\")\n")
 
 		// Get the procedure name and clean up
 		proc_name := remove_imgui(proc_name_raw, allocator)

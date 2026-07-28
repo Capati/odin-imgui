@@ -418,8 +418,8 @@ local function generateBuildFile()
 		dx12 = "imgui_impl_dx12.cpp",
 		opengl3 = "imgui_impl_opengl3.cpp",
 		win32 = "imgui_impl_win32.cpp",
-		osx = "imgui_impl_osx.cpp",
-		metal = "imgui_impl_metal.cpp"
+		osx = "imgui_impl_osx.mm",
+		metal = "imgui_impl_metal.mm"
 	}
 
 	for backend, sourceFile in pairs(backendSources) do
@@ -688,13 +688,22 @@ project "ImGui"
 		"dx12",
 		"opengl3",
 		"win32",
+	}
+	local backends_with_mm_sources = {
 		"osx",
-		"metal"
+		"metal",
 	}
 	for _, backend in ipairs(backends_with_sources) do
 		if isBackendEnabled(backend) then
 			files {
 				path.translate(IMGUI_DIR .. "/backends/imgui_impl_" .. backend .. ".cpp")
+			}
+		end
+	end
+	for _, backend in ipairs(backends_with_mm_sources) do
+		if isBackendEnabled(backend) then
+			files {
+				path.translate(IMGUI_DIR .. "/backends/imgui_impl_" .. backend .. ".mm")
 			}
 		end
 	end

@@ -99,7 +99,42 @@ foreign imguilib {
 
 	// GLFW helpers
 	Sleep :: proc(milliseconds: i32) ---
-	GetContentScaleForWindow :: proc(
-		window: glfw.WindowHandle) -> f32 ---
-	GetContentScaleForMonitor :: proc(monitor: glfw.MonitorHandle) -> f32 ---
+	// GetContentScaleForWindow :: proc(
+	// 	window: glfw.WindowHandle) -> f32 ---
+	// GetContentScaleForMonitor :: proc(monitor: glfw.MonitorHandle) -> f32 ---
+}
+
+GetContentScaleForWindow :: proc(window: glfw.WindowHandle) -> f32 {
+	when ODIN_OS == .Linux {
+		if glfw.GetPlatform() == glfw.PLATFORM_WAYLAND {
+			return 1.0
+		}
+	}
+
+	when ODIN_OS != .Darwin {
+		x_scale, _ := glfw.GetWindowContentScale(window)
+		return x_scale
+	} else {
+		return 1.0
+	}
+}
+
+GetContentScaleForMonitor :: proc(monitor: glfw.MonitorHandle) -> f32 {
+	when ODIN_OS == .Linux {
+		if glfw.GetPlatform() == glfw.PLATFORM_WAYLAND {
+			return 1.0
+		}
+	}
+
+	when ODIN_OS != .Darwin {
+		x_scale, _ := glfw.GetMonitorContentScale(monitor)
+		return x_scale
+	} else {
+		return 1.0
+	}
+}
+
+GetContentScale :: proc {
+	GetContentScaleForWindow,
+	GetContentScaleForMonitor,
 }

@@ -67,6 +67,34 @@
                         ],
                     },
                },
+               {
+                    "name": "GLFW OpenGL3",
+                    "windows": {
+                        "cmd": [
+                            "cmd", "/c",
+                            "odin", "run",
+                            "examples\\example_glfw_opengl3",
+                            "-debug",
+                            "-out:build\\example_glfw_opengl3.exe"
+                        ],
+                    },
+                    "linux": {
+                        "cmd": [
+                            "odin", "run",
+                            "examples/example_glfw_opengl3",
+                            "-debug",
+                            "-out:build/example_glfw_opengl3"
+                        ],
+                    },
+                    "osx": {
+                        "cmd": [
+                            "odin", "run",
+                            "examples/example_glfw_opengl3",
+                            "-debug",
+                            "-out:build/example_glfw_opengl3"
+                        ],
+                    },
+               },
 			],
 		}
 	],

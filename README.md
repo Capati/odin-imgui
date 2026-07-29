@@ -18,7 +18,6 @@
 - Uses [dear_bindings][] to generate the C API.
 - Generates bindings for the `docking` ImGui branch
 - Generator is written in Odin
-- Names are in Odin naming convention
 - Contains bindings for most of the backends
   - All backends which exist in vendor have bindings
   - These include: `dx11`, `dx12`, `glfw`, `metal`, `opengl3`, `osx`, `sdl2`, `sdl3`,

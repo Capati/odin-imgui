@@ -239,6 +239,7 @@ setup_vulkan :: proc() {
         create_info.enabledExtensionCount = u32(len(extensions))
         create_info.ppEnabledExtensionNames = raw_data(extensions)
         check_vk_result(vk.CreateDevice(g_physical_device, &create_info, nil, &g_device))
+        vk.load_proc_addresses_device(g_device)
         vk.GetDeviceQueue(g_device, g_queue_family, 0, &g_queue)
     }
 

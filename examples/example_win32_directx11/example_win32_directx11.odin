@@ -212,7 +212,7 @@ main :: proc() {
 
 		// Present
 		hr := g_pSwapChain->Present(1, {}) // Present with vsync
-		//hr := g_pSwapChain->Present(g_pSwapChain, 0, {}) // Present without vsync
+		//hr := g_pSwapChain->Present(0, {}) // Present without vsync
 		g_SwapChainOccluded = (hr == dxgi.STATUS_OCCLUDED)
 	}
 }

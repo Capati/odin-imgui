@@ -11,6 +11,62 @@
 			"working_dir": "${project_path}",
 			"file_regex": "^(.+)\\(([0-9]+):([0-9]+)\\) (.+)$",
 			"variants": [
+				{
+                    "name": "Check Version",
+                    "windows": {
+                        "cmd": [
+                            "cmd", "/c",
+                            "odin", "run",
+                            "examples\\check_version",
+                            "-debug",
+                            "-out:build\\check_version.exe"
+                        ],
+                    },
+                    "linux": {
+                        "cmd": [
+                            "odin", "run",
+                            "examples/check_version",
+                            "-debug",
+                            "-out:build/check_version"
+                        ],
+                    },
+                    "osx": {
+                        "cmd": [
+                            "odin", "run",
+                            "examples/check_version",
+                            "-debug",
+                            "-out:build/check_version"
+                        ],
+                    },
+               },
+               {
+                    "name": "GLFW Vulkan",
+                    "windows": {
+                        "cmd": [
+                            "cmd", "/c",
+                            "odin", "run",
+                            "examples\\example_glfw_vulkan",
+                            "-debug",
+                            "-out:build\\example_glfw_vulkan.exe"
+                        ],
+                    },
+                    "linux": {
+                        "cmd": [
+                            "odin", "run",
+                            "examples/example_glfw_vulkan",
+                            "-debug",
+                            "-out:build/example_glfw_vulkan"
+                        ],
+                    },
+                    "osx": {
+                        "cmd": [
+                            "odin", "run",
+                            "examples/example_glfw_vulkan",
+                            "-debug",
+                            "-out:build/example_glfw_vulkan"
+                        ],
+                    },
+               },
 			],
 		}
 	],

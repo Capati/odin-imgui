@@ -95,6 +95,18 @@
                         ],
                     },
                },
+               {
+                    "name": "GLFW DirectX 11",
+                    "windows": {
+                        "cmd": [
+                            "cmd", "/c",
+                            "odin", "run",
+                            "examples\\example_win32_directx11",
+                            "-debug",
+                            "-out:build\\example_win32_directx11.exe"
+                        ],
+                    },
+               },
 			],
 		}
 	],

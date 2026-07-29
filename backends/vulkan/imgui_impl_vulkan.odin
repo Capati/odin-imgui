@@ -29,6 +29,11 @@ when ODIN_OS == .Windows {
 	}
 }
 
+// Backend uses a small number of descriptors per font atlas + as many as
+// additional calls done to imvk.AddTexture().
+MINIMUM_SAMPLED_IMAGE_POOL_SIZE :: 8 // Minimum per atlas
+MINIMUM_SAMPLER_POOL_SIZE       :: 2 // Minimum for linear + nearest
+
 Vector_VkDynamicState :: struct {
     Size:     i32,
     Capacity: i32,
@@ -183,4 +188,152 @@ foreign imguilib {
 			function_name: cstring,
 			user_data: rawptr) -> vk.ProcVoidFunction,
 		user_data: rawptr = nil) -> bool ---
+}
+
+//------------------------------------------------------------------------------
+// Internal / Miscellaneous Vulkan Helpers
+// -------------------------------------------------------------------------
+// Used by example's. Used by multi-viewport features. PROBABLY NOT used by your own engine/app.
+//
+// You probably do NOT need to use or care about those functions. WE DO NOT
+// PROVIDE STRONG GUARANTEES OF BACKWARD/FORWARD COMPATIBILITY.
+//
+// Those functions only exist because:
+//
+// 1. they facilitate the readability and maintenance of the multiple main.cpp
+//    examples files.
+// 1. the multi-viewport / platform window implementation needs them internally.
+//
+// Generally we avoid exposing any kind of superfluous high-level helpers in the
+// backends, but it is too much code to duplicate everywhere so we exceptionally
+// expose them.
+//
+// Your engine/app will likely _already_ have code to setup all that stuff (swap
+// chain, render pass, frame buffers, etc.). You may read this code if you are
+// curious, but it is recommended you use your own custom tailored code to do
+// equivalent work.
+//
+// The ImGui_ImplVulkanH_XXX functions should NOT interact with any of the state
+// used by the regular ImGui_ImplVulkan_XXX functions.
+// -------------------------------------------------------------------------
+
+@(default_calling_convention = "c", link_prefix = "ImGui_ImplVulkanH_")
+foreign imguilib {
+	// Helpers
+	CreateOrResizeWindow :: proc(
+		instance: vk.Instance,
+		physical_device: vk.PhysicalDevice,
+		device: vk.Device,
+		wd: ^Window,
+		queue_family: u32,
+		allocator: ^vk.AllocationCallbacks,
+		w: i32,
+		h: i32,
+		min_image_count: u32,
+		image_usage: vk.ImageUsageFlags) ---
+	DestroyWindow :: proc(
+		instance: vk.Instance,
+		device: vk.Device,
+		wd: ^Window,
+		allocator: ^vk.AllocationCallbacks) ---
+	SelectSurfaceFormat :: proc(
+		physical_device: vk.PhysicalDevice,
+		surface: vk.SurfaceKHR,
+		request_formats: ^vk.Format,
+		request_formats_count: i32,
+		request_color_space: vk.ColorSpaceKHR) -> vk.SurfaceFormatKHR ---
+	SelectPresentMode :: proc(
+		physical_device: vk.PhysicalDevice,
+		surface: vk.SurfaceKHR,
+		request_modes: ^vk.PresentModeKHR,
+		request_modes_count: i32) -> vk.PresentModeKHR ---
+	SelectPhysicalDevice :: proc(
+		instance: vk.Instance) -> vk.PhysicalDevice ---
+	SelectQueueFamilyIndex :: proc(
+		physical_device: vk.PhysicalDevice) -> u32 ---
+	GetMinImageCountFromPresentMode :: proc(
+		present_mode: vk.PresentModeKHR) -> i32 ---
+	// Access to Vulkan objects associated with a viewport (e.g to export a screenshot)
+	GetWindowDataFromViewport :: proc(
+		viewport: ^im.Viewport) -> ^Window ---
+}
+
+// Helper structure to hold the data needed by one rendering frame (Used by
+// example's main.cpp. Used by multi-viewport features. Probably NOT used by
+// your own engine/app.) [Please zero-clear before use!]
+Frame :: struct {
+    CommandPool:    vk.CommandPool,
+    CommandBuffer:  vk.CommandBuffer,
+    Fence:          vk.Fence,
+    Backbuffer:     vk.Image,
+    BackbufferView: vk.ImageView,
+    Framebuffer:    vk.Framebuffer,
+}
+
+FrameSemaphores :: struct {
+    ImageAcquiredSemaphore:  vk.Semaphore,
+    RenderCompleteSemaphore: vk.Semaphore,
+}
+
+Vector_Frame :: struct {
+    Size:     i32,
+    Capacity: i32,
+    Data:     ^Frame,
+}
+
+Vector_FrameSemaphores :: struct {
+    Size:     i32,
+    Capacity: i32,
+    Data:     ^FrameSemaphores,
+}
+
+// Helper structure to hold the data needed by one rendering context into one OS
+// window. (Used by example's main.cpp. Used by multi-viewport features.
+// Probably NOT used by your own engine/app.)
+Window :: struct {
+    // Input
+    UseDynamicRendering:    bool,
+    // Surface created and destroyed by caller.
+    Surface:                vk.SurfaceKHR,
+    SurfaceFormat:          vk.SurfaceFormatKHR,
+    PresentMode:            vk.PresentModeKHR,
+    // RenderPass creation: main attachment description.
+    AttachmentDesc:         vk.AttachmentDescription,
+    // RenderPass creation: clear value when using VK_ATTACHMENT_LOAD_OP_CLEAR.
+    ClearValue:             vk.ClearValue,
+
+    // Internal
+    // Generally same as passed to CreateOrResizeWindow()
+    Width:                  i32,
+    Height:                 i32,
+    Swapchain:              vk.SwapchainKHR,
+    RenderPass:             vk.RenderPass,
+    // Current frame being rendered to (0 <= FrameIndex < FrameInFlightCount)
+    FrameIndex:             u32,
+    // Number of simultaneous in-flight frames (returned by
+    // vkGetSwapchainImagesKHR, usually derived from min_image_count)
+    ImageCount:             u32,
+    // Number of simultaneous in-flight frames + 1, to be able to use it in
+    // vkAcquireNextImageKHR
+    SemaphoreCount:         u32,
+    // Current set of swapchain wait semaphores we're using (needs to be
+    // distinct from per frame data)
+    SemaphoreIndex:         u32,
+    Frames:                 Vector_Frame,
+    FrameSemaphores:        Vector_FrameSemaphores,
+}
+
+DEFAULT_WINDOW :: Window {
+	PresentMode = .FIFO,
+	AttachmentDesc = {
+		// Will automatically use wd->SurfaceFormat.format.
+        format         = .UNDEFINED,
+        samples        = {._1},
+        loadOp         = .CLEAR,
+        storeOp        = .STORE,
+        stencilLoadOp  = .DONT_CARE,
+        stencilStoreOp = .DONT_CARE,
+        initialLayout  = .UNDEFINED,
+        finalLayout    = .PRESENT_SRC_KHR,
+	},
 }

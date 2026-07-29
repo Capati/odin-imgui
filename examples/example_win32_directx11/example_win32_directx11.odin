@@ -11,9 +11,9 @@ import "vendor:directx/d3d11"
 import "vendor:directx/dxgi"
 
 // Data
-g_pd3d_device:             ^d3d11.IDevice
-g_pd3d_device_context:     ^d3d11.IDeviceContext
-g_p_swap_chain:            ^dxgi.ISwapChain
+g_d3d_device:              ^d3d11.IDevice
+g_d3d_device_context:      ^d3d11.IDeviceContext
+g_swap_chain:              ^dxgi.ISwapChain
 g_swap_chain_occluded:     bool
 g_resize_width:            u32
 g_resize_height:           u32
@@ -99,7 +99,7 @@ main :: proc() {
 	// Setup Platform/Renderer backends
 	imwin32.Init(hwnd)
 	defer imwin32.Shutdown()
-	imdx11.Init(g_pd3d_device, g_pd3d_device_context)
+	imdx11.Init(g_d3d_device, g_d3d_device_context)
 	defer imdx11.Shutdown()
 
 	// Load Fonts
@@ -133,7 +133,7 @@ main :: proc() {
 		}
 
 		// Handle window being minimized or screen locked
-		if g_swap_chain_occluded && g_p_swap_chain->Present(0, {.TEST}) == dxgi.STATUS_OCCLUDED {
+		if g_swap_chain_occluded && g_swap_chain->Present(0, {.TEST}) == dxgi.STATUS_OCCLUDED {
 			win32.Sleep(10)
 			continue
 		}
@@ -142,7 +142,7 @@ main :: proc() {
 		// Handle window resize (we don't resize directly in the WM_SIZE handler)
 		if g_resize_width != 0 && g_resize_height != 0 {
 			cleanup_render_target()
-			g_p_swap_chain->ResizeBuffers(0, g_resize_width, g_resize_height, .UNKNOWN, {})
+			g_swap_chain->ResizeBuffers(0, g_resize_width, g_resize_height, .UNKNOWN, {})
 			g_resize_width, g_resize_height = 0, 0
 			create_render_target()
 		}
@@ -200,8 +200,8 @@ main :: proc() {
 			clear_color.z * clear_color.w,
 			clear_color.w,
 		}
-		g_pd3d_device_context->OMSetRenderTargets(1, &g_main_render_target_view, nil)
-		g_pd3d_device_context->ClearRenderTargetView(g_main_render_target_view, &clear_color_with_alpha)
+		g_d3d_device_context->OMSetRenderTargets(1, &g_main_render_target_view, nil)
+		g_d3d_device_context->ClearRenderTargetView(g_main_render_target_view, &clear_color_with_alpha)
 		imdx11.RenderDrawData(im.GetDrawData())
 
 		// Update and Render additional Platform Windows
@@ -211,8 +211,8 @@ main :: proc() {
 		}
 
 		// Present
-		hr := g_p_swap_chain->Present(1, {}) // Present with vsync
-		//hr := g_p_swap_chain->Present(0, {}) // Present without vsync
+		hr := g_swap_chain->Present(1, {}) // Present with vsync
+		//hr := g_swap_chain->Present(0, {}) // Present without vsync
 		g_swap_chain_occluded = (hr == dxgi.STATUS_OCCLUDED)
 	}
 }
@@ -246,12 +246,12 @@ create_device_d3d :: proc(hwnd: win32.HWND) -> bool {
 	res := d3d11.CreateDeviceAndSwapChain(
 		nil, .HARDWARE, nil, create_device_flags,
 		&feature_level_array[0], 2, d3d11.SDK_VERSION,
-		&sd, &g_p_swap_chain, &g_pd3d_device, &feature_level, &g_pd3d_device_context)
+		&sd, &g_swap_chain, &g_d3d_device, &feature_level, &g_d3d_device_context)
 	if res == dxgi.ERROR_UNSUPPORTED { // Try WARP software driver if hardware is not available.
 		res = d3d11.CreateDeviceAndSwapChain(
 			nil, .WARP, nil, create_device_flags,
 			&feature_level_array[0], 2, d3d11.SDK_VERSION,
-			&sd, &g_p_swap_chain, &g_pd3d_device, &feature_level, &g_pd3d_device_context)
+			&sd, &g_swap_chain, &g_d3d_device, &feature_level, &g_d3d_device_context)
 	}
 	if res != 0 {
 		return false
@@ -265,7 +265,7 @@ create_device_d3d :: proc(hwnd: win32.HWND) -> bool {
 	//   backend does this automatically for secondary viewports that it
 	//   creates.
 	pSwapChainFactory: ^dxgi.IFactory
-	if id := g_p_swap_chain->GetParent(dxgi.IFactory_UUID, (^rawptr)(&pSwapChainFactory)); id >= 0 {
+	if id := g_swap_chain->GetParent(dxgi.IFactory_UUID, (^rawptr)(&pSwapChainFactory)); id >= 0 {
 		pSwapChainFactory->MakeWindowAssociation(dxgi.HWND(hwnd), {.NO_ALT_ENTER})
 		pSwapChainFactory->Release()
 	}
@@ -276,24 +276,24 @@ create_device_d3d :: proc(hwnd: win32.HWND) -> bool {
 
 cleanup_device_d3d :: proc() {
 	cleanup_render_target()
-	if g_p_swap_chain != nil {
-		g_p_swap_chain->Release()
-		g_p_swap_chain = nil
+	if g_swap_chain != nil {
+		g_swap_chain->Release()
+		g_swap_chain = nil
 	}
-	if g_pd3d_device_context != nil {
-		g_pd3d_device_context->Release()
-		g_pd3d_device_context = nil
+	if g_d3d_device_context != nil {
+		g_d3d_device_context->Release()
+		g_d3d_device_context = nil
 	}
-	if g_pd3d_device != nil {
-		g_pd3d_device->Release()
-		g_pd3d_device = nil
+	if g_d3d_device != nil {
+		g_d3d_device->Release()
+		g_d3d_device = nil
 	}
 }
 
 create_render_target :: proc() {
 	pBackBuffer: ^d3d11.ITexture2D
-	g_p_swap_chain->GetBuffer(0, d3d11.ITexture2D_UUID, (^rawptr)(&pBackBuffer))
-	g_pd3d_device->CreateRenderTargetView(
+	g_swap_chain->GetBuffer(0, d3d11.ITexture2D_UUID, (^rawptr)(&pBackBuffer))
+	g_d3d_device->CreateRenderTargetView(
 		(^d3d11.IResource)(pBackBuffer), nil, &g_main_render_target_view)
 	pBackBuffer->Release()
 }

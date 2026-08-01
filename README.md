@@ -21,7 +21,7 @@
 - Contains bindings for most of the backends
   - All backends which exist in vendor have bindings
   - These include: `dx11`, `dx12`, `glfw`, `metal`, `opengl3`, `osx`, `sdl2`, `sdl3`,
-    `sdlgpu3`, `sdlrenderer2`, `sdlrenderer3`, `vulkan`, `wgpu`, `win32`
+   `sdlgpu3`, `sdlrenderer2`, `sdlrenderer3`, `vulkan`, `wgpu`, `win32`
 
 ## Building
 
@@ -33,18 +33,18 @@ straightforward.
 
 - [Premake5](https://premake.github.io) - the build configuration
   - You can download the [Pre-Built Binaries](https://premake.github.io/download), simply need
-    to be unpacked and placed somewhere on the system search path or any other convenient
-    location.
+   to be unpacked and placed somewhere on the system search path or any other convenient
+   location.
   - For Unix, also requires **GNU libc 2.38**.
 - [Git](http://git-scm.com/downloads) - required for clone backend dependencies
 - [Python](https://www.python.org/downloads/) - version 3.3.x or higher is required by
   [dear_bindings][]
   - **Linux users:** You also need the `venv` and `pip` modules, which may not be installed by
-      default:
+     default:
 
-    ```bash
-    sudo apt install python3-venv python3-pip
-    ```
+   ```bash
+   sudo apt install python3-venv python3-pip
+   ```
 
 ### Windows
 
@@ -53,14 +53,14 @@ straightforward.
 
 2. Download and install **premake5.exe**.
 
-    Either add to PATH or copy to project directory.
+   Either add to PATH or copy to project directory.
 
 3. Open a command window, navigate to the project directory and generate Visual Studio 2022
    project files with desired backends:
 
-    ```shell
-    premake5 --backends=glfw,opengl3 vs2026
-    ```
+   ```shell
+   premake5 --backends=glfw,opengl3 vs2026
+   ```
 
 4. From the project folder, open the directory `build\make\windows`, them open the generated
    solution **ImGui.sln**.
@@ -68,8 +68,8 @@ straightforward.
 5. In Visual Studio, confirm that the dropdown box at the top says “x64” (not “x86”); and then
    use **Build** > **Build Solution**.
 
-    The generated library file `imgui_windows_x64.lib` will be located in the root of the
-    project directory.
+   The generated library file `imgui_windows_x64.lib` will be located in the root of the
+   project directory.
 
 #### Compiling Without Visual Studio
 
@@ -80,16 +80,16 @@ If you do not have Visual Studio installed, you can use the **Build Tools for Vi
 2. [Download MSVC compiler/linker][] & Windows SDK without installing full Visual Studio.
 3. Make sure you have the required folder in the PATH:
 
-    - `<portable-msvc>\msvc\VC\Auxiliary\Build` - for `vcvars64.bat`
-    - `<portable-msvc>\msvc\VC\Tools\MSVC\14.43.34808\bin\Hostx64\x64` - for `cl` and `lib`
+   - `<portable-msvc>\msvc\VC\Auxiliary\Build` - for `vcvars64.bat`
+   - `<portable-msvc>\msvc\VC\Tools\MSVC\14.43.34808\bin\Hostx64\x64` - for `cl` and `lib`
 
 4. Open a command window, navigate to the `build` directory, and locate the `build.bat` file.
    This batch file will use the generated project files to build ImGui.
 5. Compile and link ImGui:
 
-    ```bash
-    build.bat
-    ```
+   ```bash
+   build.bat
+   ```
 
 [Download MSVC compiler/linker]: https://gist.github.com/mmozeiko/7f3162ec2988e81e56d5c4e22cde9977
 
@@ -103,37 +103,37 @@ If you do not have Visual Studio installed, you can use the **Build Tools for Vi
 3. Open a terminal window, navigate to the project directory and generate the makefiles with
    desired backends:
 
-    ```bash
-    premake5 --backends=glfw,opengl3 gmake
-    # On macOS, you can also use Xcode:
-    premake5 --backends=glfw,opengl3 xcode4
-    ```
+   ```bash
+   premake5 --backends=glfw,opengl3 gmake
+   # On macOS, you can also use Xcode:
+   premake5 --backends=glfw,opengl3 xcode4
+   ```
 
 4. From the project folder, navigate to the generated build directory:
 
-    ```bash
-    cd build/make/linux
-    # Or
-    cd build/make/macosx
-    ```
+   ```bash
+   cd build/make/linux
+   # Or
+   cd build/make/macosx
+   ```
 
 5. Compile the project using the `make` command:
 
-    ```bash
-    make config=release_x86_64
-    # Or for debug build:
-    # make config=debug_x86_64
-    ```
+   ```bash
+   make config=release_x86_64
+   # Or for debug build:
+   # make config=debug_x86_64
+   ```
 
-    On macOS, the `make` command might need different configuration flags:
+   On macOS, the `make` command might need different configuration flags:
 
-    ```bash
-    make config=release_x86_64   # For Intel Macs
-    # or
-    make config=release_arm64    # For Apple Silicon (M1/M2/M3) Macs
-    ```
+   ```bash
+   make config=release_x86_64   # For Intel Macs
+   # or
+   make config=release_arm64    # For Apple Silicon (M1/M2/M3) Macs
+   ```
 
-    The generated library file will be located in the root of the project directory.
+   The generated library file will be located in the root of the project directory.
 
 ## TODO
 

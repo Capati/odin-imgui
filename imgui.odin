@@ -32,6 +32,8 @@ when ODIN_OS == .Windows {
 	}
 }
 
+// Verify ABI compatibility between caller code and compiled version of Dear ImGui.
+// This helps detects some build issues.
 CHECKVERSION :: proc() {
 	ensure(
 		DebugCheckVersionAndDataLayout(

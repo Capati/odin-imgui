@@ -629,58 +629,58 @@ project "ImGui"
 
 	-- Modify win32 impl to avoid error C2159
 	if isBackendEnabled("win32") then
-	    local original_file = string.format("%s\\backends\\imgui_impl_win32.cpp", IMGUI_DIR)
-	    local backup_file = string.format("%s\\backends\\imgui_impl_win32.cpp.bak", IMGUI_DIR)
+		local original_file = string.format("%s\\backends\\imgui_impl_win32.cpp", IMGUI_DIR)
+		local backup_file = string.format("%s\\backends\\imgui_impl_win32.cpp.bak", IMGUI_DIR)
 
-	    local file = io.open(original_file, "r")
-	    if not file then
-	        print("Error: Could not open " .. original_file)
-	        return
-	    end
-	    local lines = {}
-	    for line in file:lines() do
-	        table.insert(lines, line)
-	    end
-	    file:close()
+		local file = io.open(original_file, "r")
+		if not file then
+			print("Error: Could not open " .. original_file)
+			return
+		end
+		local lines = {}
+		for line in file:lines() do
+			table.insert(lines, line)
+		end
+		file:close()
 
-	    -- Backup antes de qualquer modificação
-	    local backup_exists = io.open(backup_file, "r") ~= nil
-	    if not backup_exists then
-	        if not os.copyfile(original_file, backup_file) then
-	            print("Error: Could not create backup at " .. backup_file)
-	            return
-	        end
-	        print("Created backup at " .. backup_file)
-	    else
-	        print("Backup already exists at " .. backup_file .. "; skipping backup")
-	    end
+		-- Backup antes de qualquer modificação
+		local backup_exists = io.open(backup_file, "r") ~= nil
+		if not backup_exists then
+			if not os.copyfile(original_file, backup_file) then
+				print("Error: Could not create backup at " .. backup_file)
+				return
+			end
+			print("Created backup at " .. backup_file)
+		else
+			print("Backup already exists at " .. backup_file .. "; skipping backup")
+		end
 
-	    local patched_count = 0
-	    for i, line in ipairs(lines) do
-	        local new_line, n = line:gsub("^extern%s+IMGUI_IMPL_API", "IMGUI_IMPL_API")
-	        if n > 0 then
-	            lines[i] = new_line
-	            patched_count = patched_count + 1
-	        end
-	    end
+		local patched_count = 0
+		for i, line in ipairs(lines) do
+			local new_line, n = line:gsub("^extern%s+IMGUI_IMPL_API", "IMGUI_IMPL_API")
+			if n > 0 then
+				lines[i] = new_line
+				patched_count = patched_count + 1
+			end
+		end
 
-	    if patched_count == 0 then
-	        print("Warning: no 'extern IMGUI_IMPL_API' lines found to patch in " .. original_file)
-	    else
-	        print("Patched " .. patched_count .. " line(s) in " .. original_file)
-	    end
+		if patched_count == 0 then
+			print("Warning: no 'extern IMGUI_IMPL_API' lines found to patch in " .. original_file)
+		else
+			print("Patched " .. patched_count .. " line(s) in " .. original_file)
+		end
 
-	    local out_file = io.open(original_file, "w")
-	    if not out_file then
-	        print("Error: Could not write to " .. original_file)
-	        return
-	    end
-	    for _, l in ipairs(lines) do
-	        out_file:write(l .. "\n")
-	    end
-	    out_file:close()
+		local out_file = io.open(original_file, "w")
+		if not out_file then
+			print("Error: Could not write to " .. original_file)
+			return
+		end
+		for _, l in ipairs(lines) do
+			out_file:write(l .. "\n")
+		end
+		out_file:close()
 
-	    print("Modified " .. original_file .. " in place")
+		print("Modified " .. original_file .. " in place")
 	end
 
 	-- List of backends that only need source files

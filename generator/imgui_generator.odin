@@ -31,7 +31,9 @@ GENERATED_BACKENDS_DIR :: GENERATED_DIR + "backends/"
 
 // odinfmt: disable
 FOREIGN_IMPORT :: `
-when ODIN_OS == .Linux || ODIN_OS == .Darwin {
+when ODIN_OS == .Linux {
+	@(require) foreign import stdcpp "system:stdc++"
+} else when ODIN_OS == .Darwin {
 	@(require) foreign import stdcpp "system:c++"
 }
 
@@ -61,6 +63,8 @@ when ODIN_OS == .Windows {
 	}
 }
 
+// Verify ABI compatibility between caller code and compiled version of Dear ImGui.
+// This helps detects some build issues.
 CHECKVERSION :: proc() {
 	ensure(
 		DebugCheckVersionAndDataLayout(

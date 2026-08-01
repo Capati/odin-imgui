@@ -1,6 +1,6 @@
 # Odin ImGui
 
-[Odin Language][] bindings for **Dear ImGui v1.92.8-docking**.
+[Odin Language][] bindings for **Dear ImGui v1.92.9b-docking**.
 
 ## Table of Contents
 

@@ -197,9 +197,9 @@ get_inner_type_string :: proc(
 			if !builtin_type_ok {
 				return "", false
 			}
-			if builtin_type == "char" {
-				return "cstring", true
-			}
+			// if builtin_type == "char" {
+			// 	return "cstring", true
+			// }
 			return convert_type_name(gen, builtin_type, allocator = ta), true
 
 		case "Pointer":

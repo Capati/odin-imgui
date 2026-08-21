@@ -1545,7 +1545,7 @@ Payload :: struct {
 	SourceId: ID, // Source item id
 	SourceParentId: ID, // Source parent id (if available)
 	DataFrameCount: i32, // Data timestamp
-	DataType: [32+1]cstring, // Data type tag (short user-supplied string, 32 characters max)
+	DataType: [32+1]u8, // Data type tag (short user-supplied string, 32 characters max)
 	Preview: bool, // Set when AcceptDragDropPayload() was called and mouse has been hovering the target item (nb: handle overlapping drag targets)
 	Delivery: bool, // Set when AcceptDragDropPayload() was called and mouse button is released over the target item.
 }
@@ -1558,7 +1558,7 @@ TextFilter_GuiTextRange :: struct {
 
 // Helper: Parse and apply text filters. In format "aaaaa[,bbbb][,ccccc]"
 TextFilter :: struct {
-	InputBuf: [256]cstring,
+	InputBuf: [256]u8,
 	Filters: Vector_GuiTextRange,
 	CountGrep: i32,
 }
@@ -1816,7 +1816,7 @@ TextureData :: struct {
 
 // A font input/source (we may rename this to ImFontSource in the future)
 FontConfig :: struct {
-	Name: [40]cstring, // <auto>   // Name (strictly to ease debugging, hence limited size buffer)
+	Name: [40]u8, // <auto>   // Name (strictly to ease debugging, hence limited size buffer)
 	FontData: rawptr, //          // TTF/OTF data
 	FontDataSize: i32, //          // TTF/OTF data size
 	FontDataOwnedByAtlas: bool, // true     // TTF/OTF data ownership taken by the owner ImFontAtlas (will delete memory itself). SINCE 1.92, THE DATA NEEDS TO PERSIST FOR WHOLE DURATION OF ATLAS.
@@ -4391,7 +4391,7 @@ foreign imguilib {
 	@(link_name = "ImGuiTextFilter_ImGuiTextRange_split")
 	TextFilter_GuiTextRange_split :: proc(
 		self: ^TextFilter_GuiTextRange,
-		separator: cstring,
+		separator: u8,
 		out: ^Vector_GuiTextRange) ---
 	// Helper calling InputText+Build
 	@(link_name = "ImGuiTextFilter_Draw")

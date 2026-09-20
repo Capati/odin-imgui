@@ -57,6 +57,7 @@ write_structs :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Value)
 
 		// Get field name and clean up
 		struct_name := get_type_string(gen, &struct_entry_obj, false, ta)
+		is_imvector := strings.has_prefix(struct_name, "Vector_")
 		strings.write_string(&b, struct_name)
 		strings.write_string(&b, " :: struct")
 
@@ -128,6 +129,15 @@ write_structs :: proc(gen: ^Generator, handle: ^os.File, json_data: ^json.Value)
 				// TODO(Capati): better to handle cycle types?
 				if field_name == "ID" {
 					field_name = "id"
+				}
+
+				// ImVector<T>::Data is a dynamic array, not a single pointer
+				if is_imvector && field_name == "Data" {
+				    if field_type == "cstring" {
+				        field_type = "[^]u8"
+				    } else if strings.has_prefix(field_type, "^") {
+				        field_type = strings.concatenate({"[^]", field_type[1:]}, ta)
+				    }
 				}
 
 				strings.write_string(&b, TAB_SPACE)

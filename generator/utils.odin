@@ -90,6 +90,9 @@ remove_imgui :: proc(name: string, allocator: mem.Allocator) -> string {
 		}
 	}
 
+	// Handle composite names like ImVector_ImGuiTextRange
+	str, _ = strings.replace_all(str, "ImGui", "", ta)
+
 	// TODO(Capati): Check other "Im" word conflicts
 	if !strings.contains(str, "Image") {
 		str, _ = strings.replace_all(str, "IM_", "", ta)

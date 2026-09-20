@@ -1117,160 +1117,160 @@ TableColumnSortSpecs :: struct {
 	SortDirection: SortDirection, // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending
 }
 
-Vector_GuiTextRange :: struct {
+Vector_TextRange :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^TextFilter_GuiTextRange,
+	Data: [^]TextFilter_TextRange,
 }
 
 Vector_char :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: cstring,
+	Data: [^]u8,
 }
 
-Vector_GuiStoragePair :: struct {
+Vector_StoragePair :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^StoragePair,
+	Data: [^]StoragePair,
 }
 
-Vector_GuiSelectionRequest :: struct {
+Vector_SelectionRequest :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^SelectionRequest,
+	Data: [^]SelectionRequest,
 }
 
 Vector_DrawChannel :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^DrawChannel,
+	Data: [^]DrawChannel,
 }
 
 Vector_DrawCmd :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^DrawCmd,
+	Data: [^]DrawCmd,
 }
 
 Vector_DrawIdx :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^DrawIdx,
+	Data: [^]DrawIdx,
 }
 
 Vector_DrawVert :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^DrawVert,
+	Data: [^]DrawVert,
 }
 
 Vector_Vec2 :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^Vec2,
+	Data: [^]Vec2,
 }
 
 Vector_Vec4 :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^Vec4,
+	Data: [^]Vec4,
 }
 
 Vector_TextureRef :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^TextureRef,
+	Data: [^]TextureRef,
 }
 
 Vector_U8 :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^u8,
+	Data: [^]u8,
 }
 
 Vector_DrawListPtr :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^^DrawList,
+	Data: [^]^DrawList,
 }
 
 Vector_TextureRect :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^TextureRect,
+	Data: [^]TextureRect,
 }
 
 Vector_U32 :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^u32,
+	Data: [^]u32,
 }
 
 Vector_Wchar :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^Wchar,
+	Data: [^]Wchar,
 }
 
 Vector_FontPtr :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^^Font,
+	Data: [^]^Font,
 }
 
 Vector_FontConfig :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^FontConfig,
+	Data: [^]FontConfig,
 }
 
 Vector_DrawListSharedDataPtr :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^^DrawListSharedData,
+	Data: [^]^DrawListSharedData,
 }
 
 Vector_float :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^f32,
+	Data: [^]f32,
 }
 
 Vector_U16 :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^u16,
+	Data: [^]u16,
 }
 
 Vector_FontGlyph :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^FontGlyph,
+	Data: [^]FontGlyph,
 }
 
 Vector_FontConfigPtr :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^^FontConfig,
+	Data: [^]^FontConfig,
 }
 
-Vector_GuiPlatformMonitor :: struct {
+Vector_PlatformMonitor :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^PlatformMonitor,
+	Data: [^]PlatformMonitor,
 }
 
 Vector_TextureDataPtr :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^^TextureData,
+	Data: [^]^TextureData,
 }
 
-Vector_GuiViewportPtr :: struct {
+Vector_ViewportPtr :: struct {
 	Size: i32,
 	Capacity: i32,
-	Data: ^^Viewport,
+	Data: [^]^Viewport,
 }
 
 Style :: struct {
@@ -1551,7 +1551,7 @@ Payload :: struct {
 }
 
 // [Internal]
-TextFilter_GuiTextRange :: struct {
+TextFilter_TextRange :: struct {
 	b: cstring,
 	e: cstring,
 }
@@ -1559,7 +1559,7 @@ TextFilter_GuiTextRange :: struct {
 // Helper: Parse and apply text filters. In format "aaaaa[,bbbb][,ccccc]"
 TextFilter :: struct {
 	InputBuf: [256]u8,
-	Filters: Vector_GuiTextRange,
+	Filters: Vector_TextRange,
 	CountGrep: i32,
 }
 
@@ -1590,7 +1590,7 @@ __anonymous_type0 :: struct {
 // - You want to store custom debug data easily without adding or editing structures in your code (probably not efficient, but convenient)
 // Types are NOT stored, so it is up to you to make sure your Key don't collide with different types.
 Storage :: struct {
-	Data: Vector_GuiStoragePair,
+	Data: Vector_StoragePair,
 }
 
 // Helper: Manually clip large list of items.
@@ -1640,7 +1640,7 @@ Color :: struct {
 // - Some fields are only useful if your list is dynamic and allows deletion (getting post-deletion focus/state right is shown in the demo)
 // - Below: who reads/writes each fields? 'r'=read, 'w'=write, 'ms'=multi-select code, 'app'=application/user code.
 MultiSelectIO :: struct {
-	Requests: Vector_GuiSelectionRequest, //  ms:w, app:r     /  ms:w  app:r   // Requests to apply to your selection data.
+	Requests: Vector_SelectionRequest, //  ms:w, app:r     /  ms:w  app:r   // Requests to apply to your selection data.
 	RangeSrcItem: SelectionUserData, //  ms:w  app:r     /                // (If using clipper) Begin: Source item (often the first selected item) must never be clipped: use clipper.IncludeItemByIndex() to ensure it is submitted.
 	NavIdItem: SelectionUserData, //  ms:w, app:r     /                // (If using deletion) Last known SetNextItemSelectionUserData() value for NavId (if part of submitted items).
 	NavIdSelected: bool, //  ms:w, app:r     /        app:r   // (If using deletion) Last known selection state for NavId (if part of submitted items).
@@ -2049,9 +2049,9 @@ PlatformIO :: struct {
 	RendererSetWindowSize: proc "c" (vp: ^Viewport, size: Vec2),
 	RendererRenderWindow: proc "c" (vp: ^Viewport, render_arg: rawptr),
 	RendererSwapBuffers: proc "c" (vp: ^Viewport, render_arg: rawptr),
-	Monitors: Vector_GuiPlatformMonitor,
+	Monitors: Vector_PlatformMonitor,
 	Textures: Vector_TextureDataPtr, // List of textures used by Dear ImGui (most often 1) + contents of external texture list is automatically appended into this.
-	Viewports: Vector_GuiViewportPtr, // Main viewports, followed by all secondary viewports.
+	Viewports: Vector_ViewportPtr, // Main viewports, followed by all secondary viewports.
 }
 
 // (Optional) This is required when enabling multi-viewport. Represent the bounds of each connected monitor/display and their DPI.
@@ -4386,13 +4386,13 @@ foreign imguilib {
 	Payload_IsDelivery :: proc(
 		self: ^Payload) -> bool ---
 	@(link_name = "ImGuiTextFilter_ImGuiTextRange_empty")
-	TextFilter_GuiTextRange_empty :: proc(
-		self: ^TextFilter_GuiTextRange) -> bool ---
+	TextFilter_TextRange_empty :: proc(
+		self: ^TextFilter_TextRange) -> bool ---
 	@(link_name = "ImGuiTextFilter_ImGuiTextRange_split")
-	TextFilter_GuiTextRange_split :: proc(
-		self: ^TextFilter_GuiTextRange,
+	TextFilter_TextRange_split :: proc(
+		self: ^TextFilter_TextRange,
 		separator: u8,
-		out: ^Vector_GuiTextRange) ---
+		out: ^Vector_TextRange) ---
 	// Helper calling InputText+Build
 	@(link_name = "ImGuiTextFilter_Draw")
 	TextFilter_Draw :: proc(

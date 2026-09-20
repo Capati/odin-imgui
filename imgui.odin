@@ -50,6 +50,7 @@ CHECKVERSION :: proc() {
 
 VERSION :: "1.92.9b"
 VERSION_NUM :: 19291
+TextureID_Invalid :: TextureID(0)
 PAYLOAD_TYPE_COLOR_3F :: "_COL3F" // float[3]: Standard type for colors, without alpha. User code may use this type.
 PAYLOAD_TYPE_COLOR_4F :: "_COL4F" // float[4]: Standard type for colors. User code may use this type.
 UNICODE_CODEPOINT_INVALID :: 0xFFFD // Invalid Unicode code point (standard value).

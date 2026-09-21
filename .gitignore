@@ -1,6 +1,7 @@
 # Build
-**/build/*
-!**/build/.gitkeep
+/build/*
+!/build/.gitkeep
+!/build/deps/.gitkeep
 impl_enabled.odin
 
 # Libraries

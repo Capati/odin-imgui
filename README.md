@@ -68,7 +68,7 @@ straightforward.
 5. In Visual Studio, confirm that the dropdown box at the top says “x64” (not “x86”); and then
    use **Build** > **Build Solution**.
 
-   The generated library file `imgui_windows_x64.lib` will be located in the root of the
+   The generated library file `imgui_windows_x86_64.lib` will be located in the root of the
    project directory.
 
 #### Compiling Without Visual Studio

@@ -5,7 +5,7 @@ import "vendor:glfw"
 when ODIN_OS == .Windows {
 	when ODIN_ARCH == .amd64 {
 		@export
-		foreign import imguilib "../../imgui_windows_x64.lib"
+		foreign import imguilib "../../imgui_windows_x86_64.lib"
 	} else {
 		@export
 		foreign import imguilib "../../imgui_windows_arm64.lib"
@@ -13,7 +13,7 @@ when ODIN_OS == .Windows {
 } else when ODIN_OS == .Linux {
 	when ODIN_ARCH == .amd64 {
 		@export
-		foreign import imguilib "../../libimgui_linux_x64.a"
+		foreign import imguilib "../../libimgui_linux_x86_64.a"
 	} else {
 		@export
 		foreign import imguilib "../../libimgui_linux_arm64.a"
@@ -21,7 +21,7 @@ when ODIN_OS == .Windows {
 } else when ODIN_OS == .Darwin {
 	when ODIN_ARCH == .amd64 {
 		@export
-		foreign import imguilib "../../libimgui_macosx_x64.a"
+		foreign import imguilib "../../libimgui_macosx_x86_64.a"
 	} else {
 		@export
 		foreign import imguilib "../../libimgui_macosx_arm64.a"

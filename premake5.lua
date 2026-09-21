@@ -552,7 +552,7 @@ project "ImGui"
 	kind "StaticLib"
 	language "C++"
 	targetdir "./"
-	targetname ("imgui_" .. target_os .. "_" .. target_arch)
+	targetname("imgui_%{cfg.system}_%{cfg.platform}")
 	cppdialect "C++11"
 
 	includedirs {

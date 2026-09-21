@@ -4,7 +4,7 @@ package imgui_impl_osx
 when ODIN_OS == .Darwin {
 	when ODIN_ARCH == .amd64 {
 		@export
-		foreign import imguilib "../../libimgui_macosx_x64.a"
+		foreign import imguilib "../../libimgui_macosx_x86_64.a"
 	} else {
 		@export
 		foreign import imguilib "../../libimgui_macosx_arm64.a"

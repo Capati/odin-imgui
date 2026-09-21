@@ -6,7 +6,7 @@ import win32 "core:sys/windows"
 when ODIN_OS == .Windows {
 	when ODIN_ARCH == .amd64 {
 		@export
-		foreign import imguilib "../../imgui_windows_x64.lib"
+		foreign import imguilib "../../imgui_windows_x86_64.lib"
 	} else {
 		@export
 		foreign import imguilib "../../imgui_windows_arm64.lib"
